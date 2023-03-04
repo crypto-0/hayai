@@ -1,0 +1,84 @@
+QWidget#window{
+  background-color: #0d0c0f;
+  /*background-color: #1a161f;*/
+}
+
+QWidget#QSidebar QFrame#right{
+  background-color: #1a161f;
+  border-right: 1px solid white;
+}
+
+QGroupBox#QNav{
+  font-size: 18px;
+  color: #7c859E;
+  text-transform: uppercase;
+  border: 0;
+  padding-top: 30px;
+}
+
+QGroupBox#QNav::title{
+  subcontrol-position: top left;
+}
+
+QGroupBox#QNav QPushButton{
+  color: #a1acbc;
+  font-size: 18px;
+}
+
+QGroupBox#QNav QPushButton:hover{
+  color: white;
+}
+
+QGroupBox#QProviderList{
+  border: 0;
+  padding-top: 30px;
+}
+
+#header QLabel,#row QLabel {
+  color: #7c859E;
+  text-transform: capitalize;
+}
+
+#row QPushButton#scroll-button{
+  background-color: rgba(0,0,0,.6)
+}
+
+QScrollBar:vertical{
+  border: 0px solid #a1acbc;
+  background: #0d0c0f;
+  width: 5px;
+  margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:vertical{
+  min-height: 0px;
+  border-radius: 4px;
+  background-color: #a1acbc;
+}
+
+QScrollBar::add-line:vertical{
+  height: 0px;
+  subcontrol-position: bottom;
+  subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical{
+  height: 0px;
+  subcontrol-position: top;
+  subcontrol-origin: margin;
+
+}
+
+QScrollArea {
+  border: none;
+}
+
+#film QLabel{
+  font-size: 14px;
+  color: #424f72;
+  text-transform: capitalize;
+}
+QScrollArea QFrame{
+  background-color: #0d0d0f;
+}
+
+
