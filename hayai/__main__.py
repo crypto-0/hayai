@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QApplication
-from hayai.screens import Window
+from hayai.screens import QWindow
 import sys
 
 def __hayai__():
     app = QApplication(sys.argv)
-    window = Window()
+    window = QWindow()
+    window.setSizeIncrement(100,100)
     window.show()
     sys.exit(app.exec_())
     

@@ -42,6 +42,7 @@ QGroupBox#QProviderList{
 #row QPushButton#scroll-button{
   background-color: rgba(0,0,0,.6)
 }
+/*
 
 QScrollBar:vertical{
   border: 0px solid #a1acbc;
@@ -71,6 +72,7 @@ QScrollBar::sub-line:vertical{
 QScrollArea {
   border: none;
 }
+*/
 
 #film QLabel{
   font-size: 14px;
