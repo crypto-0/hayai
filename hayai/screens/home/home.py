@@ -1,10 +1,12 @@
 from typing import List, Optional, Type
+from PyQt5.QtCore import Qt
 
-from PyQt5.QtWidgets import QAbstractButton, QFrame, QListView, QSizePolicy, QVBoxLayout
+from PyQt5.QtWidgets import QAbstractButton, QFrame, QGridLayout, QLabel, QListView, QScrollArea, QSizePolicy, QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 from provider_parsers import ProviderParser
 
-from hayai.models import QFilmListModel
+from hayai.features.film import QFilmListModel
+from hayai.features.film.filmlistview.filmlistview import QFilmListView
 
 class QHome(QFrame):
 
@@ -19,23 +21,35 @@ class QHome(QFrame):
 
         homeLayout: QVBoxLayout = QVBoxLayout()
         for category in providerParser.categories:
+            categoryFrame: QFrame = QFrame()
+
+            categoryTitle: QLabel = QLabel(category.capitalize())
+
             categoryModel: QFilmListModel = QFilmListModel(self.providerParser.parse_category(category=category),maxFilms=30)
-            categoryView: QListView = QListView()
-            categoryView.setBatchSize(10)
+
+            categoryView: QFilmListView = QFilmListView()
             categoryView.setModel(categoryModel)
-            categoryView.setLayoutMode(QListView.LayoutMode.Batched)
-            categoryView.setFlow(QListView.Flow.LeftToRight)
             categoryView.setWrapping(False)
-            categoryView.setViewMode(QListView.ViewMode.IconMode)
-            categoryView.setUniformItemSizes(True)
-            categoryView.setResizeMode(QListView.ResizeMode.Adjust)
-            categoryView.setWordWrap(True)
-            categoryView.setSpacing(10)
-            categoryView.setFixedHeight(300)
-            homeLayout.addWidget(categoryView)
-        
+            categoryView.update()
+            categoryView.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+            categoryView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
+            categoryView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
+
+            categoryFrameLayout: QVBoxLayout = QVBoxLayout()
+            categoryFrameLayout.setContentsMargins(0,0,0,0)
+            categoryFrameLayout.setSpacing(0)
+            categoryFrameLayout.addWidget(categoryTitle)
+            categoryFrameLayout.addWidget(categoryView)
+            categoryFrame.setLayout(categoryFrameLayout)
+
+            homeLayout.addWidget(categoryFrame)
+
         homeLayout.setContentsMargins(0,0,0,0)
-        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.Minimum)
+        #homeLayout.addStretch(1)  # add a stretch with alignment to the top
+        homeLayout.setAlignment(Qt.AlignmentFlag.AlignTop)  # set the alignment to the top
         homeLayout.setSpacing(0)
         self.setLayout(homeLayout)
+
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+        self.setObjectName("QHome")
 

@@ -5,7 +5,7 @@ QWidget#window{
 
 QWidget#QSidebar QFrame#right{
   background-color: #1a161f;
-  border-right: 1px solid white;
+  border-right: 5px solid ;
 }
 
 QGroupBox#QNav{
@@ -34,6 +34,44 @@ QGroupBox#QProviderList{
   padding-top: 30px;
 }
 
+#QHome{
+  border: None;
+  background-color: inherit;
+}
+
+#QHome QFrame {
+  border: None;
+  background-color: inherit;
+}
+
+#QHome QLabel {
+  font-size: 18px;
+  color: #7c859E;
+}
+
+#QFilmListView {
+  background-color: inherit;
+  border-color: inherit;
+}
+QFilmListView {
+    show-decoration-selected: 0;
+}
+#QFilmListView::item {
+    color: #a1acbc;
+    outline: none;
+}
+#QFilmListView::item:selected {
+  background-color: black;
+  border: 0px solid;
+}
+
+#QFilmListView::item:selected:active {
+  background-color: black;
+  border: 0px;
+}
+#QFilmListView::item:hover {
+  background-color: black;
+}
 #header QLabel,#row QLabel {
   color: #7c859E;
   text-transform: capitalize;
@@ -42,27 +80,25 @@ QGroupBox#QProviderList{
 #row QPushButton#scroll-button{
   background-color: rgba(0,0,0,.6)
 }
-/*
 
-QScrollBar:vertical{
-  border: 0px solid #a1acbc;
-  background: #0d0c0f;
-  width: 5px;
+QScrollBar{
+  width: 10px;
   margin: 0px 0px 0px 0px;
+  background-color: inherit;
 }
-QScrollBar::handle:vertical{
+QScrollBar::handle{
   min-height: 0px;
   border-radius: 4px;
-  background-color: #a1acbc;
+  background-color: #7c859E;
 }
 
-QScrollBar::add-line:vertical{
+QScrollBar::add-line{
   height: 0px;
   subcontrol-position: bottom;
   subcontrol-origin: margin;
 }
 
-QScrollBar::sub-line:vertical{
+QScrollBar::sub-line{
   height: 0px;
   subcontrol-position: top;
   subcontrol-origin: margin;
@@ -72,13 +108,7 @@ QScrollBar::sub-line:vertical{
 QScrollArea {
   border: none;
 }
-*/
 
-#film QLabel{
-  font-size: 14px;
-  color: #424f72;
-  text-transform: capitalize;
-}
 QScrollArea QFrame{
   background-color: #0d0d0f;
 }

@@ -1,8 +1,10 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout, QListView
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout, QListView, QVBoxLayout
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QResizeEvent
 from typing import Optional, Type
-from hayai.models import QFilmListModel
+from hayai.features.film import QFilmListModel
+from hayai.features.film import QFilmListView
 from provider_parsers import ProviderParser
 
 class QBrowse(QFrame):
@@ -14,27 +16,27 @@ class QBrowse(QFrame):
 
         self.browseModel: QFilmListModel =QFilmListModel()
 
-
-        self.browseView: QListView = QListView()
+        self.browseView: QFilmListView = QFilmListView()
+        self.browseView.setWrapping(True)
         self.browseView.setModel(self.browseModel)
-        self.browseView.setLayoutMode(QListView.LayoutMode.Batched)
-        self.browseView.setBatchSize(10)
-        self.browseView.setViewMode(QListView.ViewMode.IconMode)
-        self.browseView.setFlow(QListView.Flow.LeftToRight)
-        self.browseView.setUniformItemSizes(True)
-        self.browseView.setResizeMode(QListView.ResizeMode.Adjust)
-        self.browseView.setWordWrap(True)
-        #self.browseView.setTextElideMode(Qt.TextElideMode.ElideNone)
-        self.browseView.setSpacing(15)
-        self.browseView.setContentsMargins(0,0,0,0)
 
+        """
+        browseFrame: QFrame = QFrame()
+
+        browseFrameLayout: QVBoxLayout = QVBoxLayout()
+        browseFrameLayout.addWidget(self.browseView)
+        browseFrame.setLayout(browseFrameLayout)
+        """
 
         browseLayout: QHBoxLayout = QHBoxLayout()
         browseLayout.addWidget(self.browseView)
+        #browseLayout.addWidget(browseFrame)
         browseLayout.setContentsMargins(0,0,0,0)
         browseLayout.setSpacing(0)
         self.setLayout(browseLayout)
 
+        self.setObjectName("QBrowse")
 
     def browseCategory(self,categoryButton: QAbstractButton):
         self.browseModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower()))
+

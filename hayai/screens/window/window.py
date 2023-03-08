@@ -57,8 +57,7 @@ class QWindow(QWidget):
         windowLayout.setContentsMargins(0,0,0,0)
         self.setLayout(windowLayout)
 
-        #self.setMaximumSize(1920,1080)
-        self.setFixedSize(800,700)
+        #self.setFixedSize(800,700)
         self.setObjectName("window")
         self.setWindowTitle("Hayai")
         self.loadStylesheet()
