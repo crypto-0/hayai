@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout, QListView, QVB
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QResizeEvent
 from typing import Optional, Type
-from hayai.features.film import QFilmListModel
-from hayai.features.film import QFilmListView
+from hayai.widgets.film import QFilmListModel
+from hayai.widgets.film import QFilmListView
 from provider_parsers import ProviderParser
 
 class QBrowse(QFrame):
@@ -20,17 +20,9 @@ class QBrowse(QFrame):
         self.browseView.setWrapping(True)
         self.browseView.setModel(self.browseModel)
 
-        """
-        browseFrame: QFrame = QFrame()
-
-        browseFrameLayout: QVBoxLayout = QVBoxLayout()
-        browseFrameLayout.addWidget(self.browseView)
-        browseFrame.setLayout(browseFrameLayout)
-        """
 
         browseLayout: QHBoxLayout = QHBoxLayout()
         browseLayout.addWidget(self.browseView)
-        #browseLayout.addWidget(browseFrame)
         browseLayout.setContentsMargins(0,0,0,0)
         browseLayout.setSpacing(0)
         self.setLayout(browseLayout)

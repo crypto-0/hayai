@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QAbstractButton, QFrame, QGridLayout, QLabel, QListV
 from PyQt5.QtWidgets import QWidget
 from provider_parsers import ProviderParser
 
-from hayai.features.film import QFilmListModel
-from hayai.features.film.filmlistview.filmlistview import QFilmListView
+from hayai.widgets.film import QFilmListModel
+from hayai.widgets.film.filmlistview.filmlistview import QFilmListView
 
 class QHome(QFrame):
 

@@ -1,8 +1,8 @@
 from typing import Optional
-from PyQt5.QtCore import QEvent, QSize, Qt
+from PyQt5.QtCore import QEvent, QSize
 from PyQt5.QtWidgets import QListView, QWidget
 
-from hayai.features.film.filmlistmodel.filmlistmodel import QFilmListModel
+from ..filmlistmodel import QFilmListModel
 
 class QFilmListView(QListView):
 

@@ -2,7 +2,7 @@ from typing import Optional
 from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtWidgets import  QFrame, QWidget
 
-class BackgroundFrame(QFrame):
+class QBackgroundFrame(QFrame):
     def __init__(self, pixmap: QPixmap, parent: Optional[QWidget]=None):
         super().__init__(parent)
         self._pixmap: QPixmap = pixmap

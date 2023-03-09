@@ -1,7 +1,7 @@
 from typing import Dict
 from PyQt5.QtCore import pyqtSignal
-from .widgets import QNav
-from .widgets import QProviderList
+from .nav.nav import QNav
+from .providerlist.providerlist import QProviderList
 from PyQt5.QtWidgets import (
     QAbstractButton,
     QButtonGroup,
