@@ -1,0 +1,1 @@
+from .logowidget import QLogo

@@ -80,7 +80,7 @@ class QWindow(QMainWindow):
         #self.setFixedSize(800,700)
         self.setCentralWidget(mainFrame)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,sidebarDock)
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,headerDock)
+       # self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,headerDock)
         self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setContentsMargins(0,0,0,0)
         self.setObjectName("window")

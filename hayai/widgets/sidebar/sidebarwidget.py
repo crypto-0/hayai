@@ -2,6 +2,8 @@ from typing import Dict
 from PyQt5.QtCore import pyqtSignal
 from .nav import QNav
 from .providerlist import QProviderList
+from .logo import QLogo
+from .searchbar import QSearchbar
 from PyQt5.QtWidgets import (
     QAbstractButton,
     QButtonGroup,
@@ -9,6 +11,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout
 )
+
 class QSidebar(QFrame):
     menuButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
     categoryButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
@@ -25,6 +28,12 @@ class QSidebar(QFrame):
 
         rightFrame: QFrame = QFrame()
         rightFrame.setObjectName("right")
+
+        topFrame: QFrame = QFrame()
+        topFrame.setObjectName("top")
+
+        logo: QLogo = QLogo()
+        searchbar: QSearchbar = QSearchbar()
 
         
         providerNav: QProviderList = QProviderList(["sol","zoro","asian"])
@@ -59,6 +68,13 @@ class QSidebar(QFrame):
 
         self.buttonGroup.buttonToggled.connect(self.buttonToggled)
 
+        topFrameLayout: QVBoxLayout = QVBoxLayout()
+        topFrameLayout.addWidget(logo)
+        topFrameLayout.addWidget(searchbar)
+        topFrameLayout.setContentsMargins(0,20,10,20)
+        topFrameLayout.setSpacing(20)
+        topFrame.setLayout(topFrameLayout)
+
         leftFrameLayout: QVBoxLayout = QVBoxLayout()
         leftFrameLayout.addWidget(providerNav)
         leftFrameLayout.setContentsMargins(0,20,0,20)
@@ -66,14 +82,17 @@ class QSidebar(QFrame):
         leftFrame.setLayout(leftFrameLayout)
 
         rightFrameLayout: QVBoxLayout = QVBoxLayout()
-        rightFrameLayout.addWidget(menuNav)
-        rightFrameLayout.addWidget(librayNav)
-        rightFrameLayout.addWidget(categoryNav)
-        rightFrameLayout.addWidget(generalNav)
-        rightFrameLayout.setContentsMargins(0,2,0,20)
+        rightFrameLayout.addWidget(topFrame,1)
+        rightFrameLayout.addWidget(menuNav,2)
+        rightFrameLayout.addWidget(librayNav,2)
+        rightFrameLayout.addWidget(categoryNav,2)
+        rightFrameLayout.addWidget(generalNav,2)
+        rightFrameLayout.setContentsMargins(10,2,10,20)
         rightFrameLayout.setSpacing(5)
         #rightFrameLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         rightFrame.setLayout(rightFrameLayout)
+
+
 
         sidebarLayout: QHBoxLayout = QHBoxLayout()
         sidebarLayout.addWidget(leftFrame,1)

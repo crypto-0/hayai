@@ -25,7 +25,8 @@ class QHome(QFrame):
 
             categoryTitle: QLabel = QLabel(category.capitalize())
 
-            categoryModel: QFilmListModel = QFilmListModel(self.providerParser.parse_category(category=category),maxFilms=30)
+            #categoryModel: QFilmListModel = QFilmListModel(self.providerParser.parse_category(category=category),maxFilms=30)
+            categoryModel: QFilmListModel = QFilmListModel()
 
             categoryView: QFilmListView = QFilmListView()
             categoryView.setModel(categoryModel)
@@ -36,7 +37,7 @@ class QHome(QFrame):
             categoryView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
 
             categoryFrameLayout: QVBoxLayout = QVBoxLayout()
-            categoryFrameLayout.setContentsMargins(0,0,0,0)
+            categoryFrameLayout.setContentsMargins(5,10,0,0)
             categoryFrameLayout.setSpacing(0)
             categoryFrameLayout.addWidget(categoryTitle)
             categoryFrameLayout.addWidget(categoryView)
@@ -46,7 +47,7 @@ class QHome(QFrame):
 
         homeLayout.setContentsMargins(0,0,0,0)
         homeLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        homeLayout.setSpacing(0)
+        homeLayout.setSpacing(5)
         self.setLayout(homeLayout)
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)

@@ -23,7 +23,7 @@ class QNav(QGroupBox):
             navLayout.addWidget(navLinkButton)
             self.navButtonGroup.addButton(navLinkButton)
         navLayout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) #pyright: ignore
-        navLayout.setContentsMargins(2,0,0,0)
+        navLayout.setContentsMargins(2,0,0,5)
         self.setLayout(navLayout)
 
         self.setCheckable(False)

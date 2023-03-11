@@ -21,9 +21,37 @@ QWidget#window::separator {
 }
 
 /* Settings for the right sidebar */
-QWidget#QSidebar QFrame#right {
+#QSidebar QFrame#right {
   background-color: #1a161f;
   border-right: 1px solid;
+}
+
+/* Settings for the searchbar */
+QFrame#QSearchbar QLineEdit {
+  border: none;
+  font-size: 14px;
+  background-color: transparent;
+  color: #a1acbc;
+}
+
+QFrame#QSearchbar QPushButton {
+  border: none;
+  color: #a1acbc;
+}
+QFrame#QSearchbar QPushButton:hover {
+  color: white;
+}
+QFrame#QSearchbar{
+  border: 1px solid #7c859e;
+  border-radius: 5px;
+  /*background-color: inherit;*/
+  background-color: #1a161f;
+}
+
+#QLogo QPushButton{
+  border: None;
+  background-color:None;
+
 }
 
 /* Settings for the navigation group box */

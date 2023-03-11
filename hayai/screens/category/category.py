@@ -21,7 +21,7 @@ class QCategory(QFrame):
 
         categoryLayout: QHBoxLayout = QHBoxLayout()
         categoryLayout.addWidget(self.categoryView)
-        categoryLayout.setContentsMargins(0,0,0,0)
+        categoryLayout.setContentsMargins(5,10,0,0)
         categoryLayout.setSpacing(0)
         self.setLayout(categoryLayout)
 
