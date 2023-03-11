@@ -1,1 +1,1 @@
-from .sidebar import QSidebar
+from .sidebarwidget import QSidebar

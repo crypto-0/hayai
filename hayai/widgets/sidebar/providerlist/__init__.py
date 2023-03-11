@@ -1,1 +1,1 @@
-from .providerlist import QProviderList
+from .providerlistwidget import QProviderList

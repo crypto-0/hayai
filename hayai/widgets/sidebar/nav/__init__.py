@@ -1,1 +1,1 @@
-from .nav import QNav
+from .navwidget import QNav

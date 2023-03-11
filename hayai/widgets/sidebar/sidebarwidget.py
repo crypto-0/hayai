@@ -1,7 +1,7 @@
 from typing import Dict
 from PyQt5.QtCore import pyqtSignal
-from .nav.nav import QNav
-from .providerlist.providerlist import QProviderList
+from .nav import QNav
+from .providerlist import QProviderList
 from PyQt5.QtWidgets import (
     QAbstractButton,
     QButtonGroup,
@@ -15,6 +15,7 @@ class QSidebar(QFrame):
     libraryButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
     generalButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
     navButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
+    homeButtonToggle: pyqtSignal = pyqtSignal(QAbstractButton)
 
     def __init__(self):
         super().__init__()
@@ -36,9 +37,12 @@ class QSidebar(QFrame):
 
         id: int = 0
         self.buttonSignalMapping: Dict = {}
-        for button in menuNav.getNavButtons():
+        for idx,button in enumerate(menuNav.getNavButtons()):
+            if idx == 0:
+                self.buttonSignalMapping[id] = self.homeButtonToggle
+            else:
+                self.buttonSignalMapping[id] = self.menuButtonToggled
             self.buttonGroup.addButton(button,id)
-            self.buttonSignalMapping[id] = self.menuButtonToggled
             id +=1
         for button in librayNav.getNavButtons():
             self.buttonGroup.addButton(button,id)
@@ -55,7 +59,6 @@ class QSidebar(QFrame):
 
         self.buttonGroup.buttonToggled.connect(self.buttonToggled)
 
-
         leftFrameLayout: QVBoxLayout = QVBoxLayout()
         leftFrameLayout.addWidget(providerNav)
         leftFrameLayout.setContentsMargins(0,20,0,20)
@@ -67,7 +70,7 @@ class QSidebar(QFrame):
         rightFrameLayout.addWidget(librayNav)
         rightFrameLayout.addWidget(categoryNav)
         rightFrameLayout.addWidget(generalNav)
-        rightFrameLayout.setContentsMargins(0,20,0,20)
+        rightFrameLayout.setContentsMargins(0,2,0,20)
         rightFrameLayout.setSpacing(5)
         #rightFrameLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         rightFrame.setLayout(rightFrameLayout)

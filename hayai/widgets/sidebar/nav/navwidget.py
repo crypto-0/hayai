@@ -1,10 +1,11 @@
 from typing import Optional
 from typing import List
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAbstractButton, QButtonGroup, QGroupBox, QVBoxLayout, QWidget
+from PyQt5.QtCore import QSize, Qt, pyqtSignal
+from PyQt5.QtGui import QColor, QIcon, QPainter, QPixmap
+from PyQt5.QtWidgets import QAbstractButton, QButtonGroup, QGroupBox, QSizePolicy, QVBoxLayout, QWidget
 from PyQt5.QtWidgets import QPushButton
+from .navbutton import QNavButton
 
 class QNav(QGroupBox):
     navButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
@@ -17,13 +18,12 @@ class QNav(QGroupBox):
         self.navButtonGroup: QButtonGroup = QButtonGroup()
 
         self.navButtonGroup.buttonToggled.connect(self.navButtonToggled)
-
         navLayout: QVBoxLayout = QVBoxLayout()
         for navLinkButton in navLinkButtons:
             navLayout.addWidget(navLinkButton)
             self.navButtonGroup.addButton(navLinkButton)
         navLayout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) #pyright: ignore
-        navLayout.setContentsMargins(0,0,0,0)
+        navLayout.setContentsMargins(2,0,0,0)
         self.setLayout(navLayout)
 
         self.setCheckable(False)
@@ -31,11 +31,12 @@ class QNav(QGroupBox):
         self.setObjectName("QNav")
 
     def createNavButton(self,navLink: str):
-            navButton: QPushButton =QPushButton(navLink.capitalize())
             iconLocation = f"hayai/widgets/sidebar/assets/icons/{navLink}.png"
-            navButton.setIcon(QIcon(iconLocation))
-            navButton.setFlat(True)
-            navButton.setCheckable(True)
+            navButton: QPushButton = QNavButton(iconLocation,navLink.capitalize())
+            navButton.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.Minimum)
+            #navButton.setIcon(QIcon(iconLocation))
+            #navButton.setFlat(True)
+            #navButton.setCheckable(True)
             navButton.setStyleSheet("QPushButton { text-align: left; }")
             return navButton
 

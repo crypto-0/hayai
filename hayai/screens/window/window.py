@@ -8,66 +8,90 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QStackedLayout,
     QWidget,
+    QMainWindow,
+    QDockWidget,
 )
+from PyQt5.QtCore import Qt
 from provider_parsers import Sol
 
 from hayai.widgets import QSidebar
+from hayai.widgets import QHeader
 
-from ..browse.browse import QBrowse
+from ..category.category import QCategory
 from ..home.home import QHome
 
-class QWindow(QWidget):
+class QWindow(QMainWindow):
 
     def __init__(self,parent: Optional[QWidget] = None):
         super().__init__()
 
-        sidebar: QSidebar = QSidebar()
+        self.header: QHeader = QHeader()
 
-        browse: QBrowse = QBrowse(Sol)
+        self.sidebar: QSidebar = QSidebar()
 
-        home: QHome = QHome(Sol)
+        self.category: QCategory = QCategory(Sol)
+
+        self.home: QHome = QHome(Sol)
 
         mainFrame: QFrame = QFrame()
+        mainFrame.setObjectName("QMainFrame")
 
 
         scrollArea = QScrollArea()
         scrollArea.setObjectName("scroll-area")
         scrollArea.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
         
-        scrollArea.setWidget(home)
-        scrollArea.horizontalScrollBar().setEnabled(True)
+        scrollArea.setWidget(self.home)
+        scrollArea.horizontalScrollBar().setEnabled(False)
         scrollArea.verticalScrollBar().setEnabled(True)
+        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         scrollArea.setWidgetResizable(True)
+        scrollArea.setContentsMargins(0,0,0,0)
 
-        sidebar.categoryButtonToggled.connect(browse.browseCategory)
-        sidebar.categoryButtonToggled.connect(self.changeScreen)
-        sidebar.menuButtonToggled.connect(self.changeScreen)
-        sidebar.menuButtonToggled.connect(browse.browseCategory)
+        self.sidebar.categoryButtonToggled.connect(self.loadCategory)
+        self.sidebar.menuButtonToggled.connect(self.loadCategory)
+        self.sidebar.homeButtonToggle.connect(self.loadHome)
+
+        sidebarDock: QDockWidget = QDockWidget()
+        sidebarDock.setWidget(self.sidebar)
+        sidebarDock.setTitleBarWidget(QWidget())
+
+        headerDock: QDockWidget = QDockWidget()
+        headerDock.setWidget(self.header)
+        headerDock.setTitleBarWidget(QWidget())
 
         self.mainFrameLayout: QStackedLayout = QStackedLayout()
         self.mainFrameLayout.addWidget(scrollArea)
-        self.mainFrameLayout.addWidget(browse)
+        self.mainFrameLayout.addWidget(self.category)
+        self.mainFrameLayout.setContentsMargins(5,0,0,0)
+        self.mainFrameLayout.setSpacing(0)
         self.mainFrameLayout.setCurrentIndex(0)
         mainFrame.setLayout(self.mainFrameLayout)
 
+        """
         windowLayout: QGridLayout = QGridLayout()
-        windowLayout.addWidget(sidebar,0,0,1,1)
+        windowLayout.addWidget(self.sidebar,0,0,1,1)
         windowLayout.addWidget(mainFrame,0,1,1,1)
         windowLayout.setSpacing(0)
         windowLayout.setContentsMargins(0,0,0,0)
         self.setLayout(windowLayout)
+        """
 
         #self.setFixedSize(800,700)
+        self.setCentralWidget(mainFrame)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,sidebarDock)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,headerDock)
+        self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
+        self.setContentsMargins(0,0,0,0)
         self.setObjectName("window")
         self.setWindowTitle("Hayai")
         self.loadStylesheet()
 
-    def changeScreen(self,button: QAbstractButton):
-        if button.text().lower() == "home":
-            self.mainFrameLayout.setCurrentIndex(0)
-        else:
-            self.mainFrameLayout.setCurrentIndex(1)
-
+    def loadHome(self):
+        self.mainFrameLayout.setCurrentIndex(0)
+    def loadCategory(self,button: QAbstractButton):
+        self.category.load(button)
+        self.mainFrameLayout.setCurrentIndex(1)
 
     def loadStylesheet(self):
         with open("hayai/screens/window/window.qss","r") as f:

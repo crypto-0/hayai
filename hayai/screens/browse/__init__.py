@@ -1,1 +1,0 @@
-from .browse import QBrowse

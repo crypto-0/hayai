@@ -1,1 +1,1 @@
-from .filmdelegate import QFilmDelegate
+from .filmdelegatewidget import QFilmDelegate

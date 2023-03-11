@@ -1,12 +1,12 @@
 from typing import List, Optional, Type
 from PyQt5.QtCore import Qt
 
-from PyQt5.QtWidgets import QAbstractButton, QFrame, QGridLayout, QLabel, QListView, QScrollArea, QSizePolicy, QVBoxLayout
+from PyQt5.QtWidgets import  QFrame,  QLabel, QListView,  QSizePolicy, QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 from provider_parsers import ProviderParser
 
 from hayai.widgets.film import QFilmListModel
-from hayai.widgets.film.filmlistview.filmlistview import QFilmListView
+from hayai.widgets.film import QFilmListView
 
 class QHome(QFrame):
 
@@ -45,8 +45,7 @@ class QHome(QFrame):
             homeLayout.addWidget(categoryFrame)
 
         homeLayout.setContentsMargins(0,0,0,0)
-        #homeLayout.addStretch(1)  # add a stretch with alignment to the top
-        homeLayout.setAlignment(Qt.AlignmentFlag.AlignTop)  # set the alignment to the top
+        homeLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         homeLayout.setSpacing(0)
         self.setLayout(homeLayout)
 

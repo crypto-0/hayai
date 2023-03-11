@@ -1,3 +1,3 @@
 from .window import QWindow
-from .browse import QBrowse
+from .category import QCategory
 from .home import QHome

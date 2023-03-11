@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtGui import QIcon, QPixmap
 from provider_parsers import Film
-from hayai.concurrency import Worker, worker
+from hayai.concurrency import Worker
 
 class QFilmListModel(QAbstractListModel):
     numberPopulated = pyqtSignal(int)

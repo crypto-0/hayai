@@ -1,6 +1,6 @@
 from typing import Optional
-from PyQt5.QtCore import QEvent, QSize
-from PyQt5.QtWidgets import QListView, QWidget
+from PyQt5.QtCore import QEvent, QSize, Qt
+from PyQt5.QtWidgets import QFrame, QListView, QWidget
 
 from ..filmlistmodel import QFilmListModel
 
@@ -23,6 +23,7 @@ class QFilmListView(QListView):
         self.viewport().installEventFilter(self)
         self.setObjectName("QFilmListView")
         self.currentIconSize: QSize = self.iconSize()
+        #self.setFrameStyle(QFrame.NoFrame)
 
     def sizeHint(self) -> QSize:
         size: QSize = super().sizeHint()
@@ -35,15 +36,16 @@ class QFilmListView(QListView):
     def eventFilter(self, obj, event):
         if obj is self.viewport() and event.type() == QEvent.Resize: #pyright: ignore
             viewport_width = self.viewport().width()
+            frameWidth = self.frameWidth()
             model = self.model()
             if isinstance(model,QFilmListModel ) and model.rowCount() > 1 :
                 item_spacing = self.spacing() 
-                available_width = viewport_width - (self.frameWidth() * 2) - (item_spacing)
+                available_width = viewport_width - (frameWidth * 2) - (item_spacing)
                 max_items_per_row = available_width // self.minimunIconSize.width() 
                 if max_items_per_row > 0:
-                    iconWidth = (available_width // max_items_per_row ) - ( item_spacing ) - (self.frameWidth() *4)
+                    iconWidth = (available_width // max_items_per_row ) - ( item_spacing ) - (frameWidth * 4)
                 else:
-                    iconWidth = self.minimunIconSize.width() - (item_spacing ) - (self.frameWidth() * 4)
+                    iconWidth = self.minimunIconSize.width() - (item_spacing ) - (frameWidth * 4)
                 iconHeight = int(iconWidth * 1.5)
                 iconSize = QSize(iconWidth,iconHeight) 
                 model.iconSize = iconSize

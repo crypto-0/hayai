@@ -1,14 +1,33 @@
-QWidget#window{
+/* General settings for the main window */
+QWidget#window {
   background-color: #0d0c0f;
-  /*background-color: #1a161f;*/
 }
 
-QWidget#QSidebar QFrame#right{
+/* Settings for the title bar */
+QWidget#window::titlebar {
+  background-color: #0d0c0f;
+}
+
+/* Settings for the separator between title bar and content */
+QWidget#window::separator {
+  padding: 0px;
+  width: 0px;
+  height: 0px;
+}
+
+/* Settings for the main frame */
+#QMainFrame {
+  background-color: black;
+}
+
+/* Settings for the right sidebar */
+QWidget#QSidebar QFrame#right {
   background-color: #1a161f;
-  border-right: 5px solid ;
+  border-right: 1px solid;
 }
 
-QGroupBox#QNav{
+/* Settings for the navigation group box */
+QGroupBox#QNav {
   font-size: 18px;
   color: #7c859E;
   text-transform: uppercase;
@@ -16,26 +35,40 @@ QGroupBox#QNav{
   padding-top: 30px;
 }
 
-QGroupBox#QNav::title{
+QGroupBox#QNav::title {
   subcontrol-position: top left;
 }
 
-QGroupBox#QNav QPushButton{
+QGroupBox#QNav QPushButton {
   color: #a1acbc;
   font-size: 18px;
+  background-color: None
+}
+QGroupBox#QNav QPushButton:checked {
+  color: red;
+  background-color: none;
+  border-right: 2px solid red;
+  border-top: 0px;
+  border-radius: 1px;
+  border-bottom: 0px;
+}
+QGroupBox#QNav QPushButton:checked::indicator {
+  background-color: transparent;
 }
 
-QGroupBox#QNav QPushButton:hover{
+QGroupBox#QNav QPushButton:hover {
   color: white;
 }
 
-QGroupBox#QProviderList{
+/* Settings for the provider list group box */
+QGroupBox#QProviderList {
   border: 0;
   padding-top: 30px;
 }
 
-#QHome{
-  border: None;
+/* Settings for the home widget */
+#QHome {
+  border: 0px;
   background-color: inherit;
 }
 
@@ -48,18 +81,27 @@ QGroupBox#QProviderList{
   font-size: 18px;
   color: #7c859E;
 }
+/* Settings for the category widget */
+#QCategory {
+  border: None;
+}
 
+/* Settings for the film list view */
 #QFilmListView {
   background-color: inherit;
-  border-color: inherit;
+  border: 2px solid;
+  border-color: transparent;
 }
+
 QFilmListView {
-    show-decoration-selected: 0;
+  show-decoration-selected: 0;
 }
+
 #QFilmListView::item {
-    color: #a1acbc;
-    outline: none;
+  color: #a1acbc;
+  outline: none;
 }
+
 #QFilmListView::item:selected {
   background-color: black;
   border: 0px solid;
@@ -69,48 +111,60 @@ QFilmListView {
   background-color: black;
   border: 0px;
 }
+
 #QFilmListView::item:hover {
   background-color: black;
 }
-#header QLabel,#row QLabel {
+
+/* Settings for the header */
+#QHeader {
+  /*background-color: inherit;*/
+  background-color: #1a161f;
+}
+
+#QHeader QPushButton {
   color: #7c859E;
+  border: 0px;
+  font-size: 25px;
   text-transform: capitalize;
 }
 
-#row QPushButton#scroll-button{
-  background-color: rgba(0,0,0,.6)
+/* Settings for the scroll button */
+#row QPushButton#scroll-button {
+  background-color: rgba(0, 0, 0, .6)
 }
 
-QScrollBar{
+/* Settings for the scroll bar */
+QScrollBar {
   width: 10px;
   margin: 0px 0px 0px 0px;
   background-color: inherit;
 }
-QScrollBar::handle{
+
+QScrollBar::handle {
   min-height: 0px;
   border-radius: 4px;
   background-color: #7c859E;
 }
 
-QScrollBar::add-line{
+QScrollBar::add-line {
   height: 0px;
   subcontrol-position: bottom;
   subcontrol-origin: margin;
 }
 
-QScrollBar::sub-line{
+QScrollBar::sub-line {
   height: 0px;
   subcontrol-position: top;
   subcontrol-origin: margin;
-
 }
 
+/* Settings for the scroll area */
 QScrollArea {
   border: none;
 }
 
-QScrollArea QFrame{
+QScrollArea QFrame {
   background-color: #0d0d0f;
 }
-
 
