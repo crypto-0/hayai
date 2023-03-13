@@ -1,3 +1,4 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout
 from PyQt5.QtWidgets import QWidget
 from typing import Optional, Type
@@ -17,6 +18,8 @@ class QCategory(QFrame):
         self.categoryView: QFilmListView = QFilmListView()
         self.categoryView.setWrapping(True)
         self.categoryView.setModel(self.categoryModel)
+        self.categoryView.setBatchSize(10)
+        self.categoryView.horizontalScrollBar().setEnabled(False)
 
 
         categoryLayout: QHBoxLayout = QHBoxLayout()
@@ -28,6 +31,6 @@ class QCategory(QFrame):
         self.setObjectName("QCategory")
 
     def load(self,categoryButton: QAbstractButton):
-        self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower()))
+        self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
         #self.categoryModel.setFilmGenerator(None)
 

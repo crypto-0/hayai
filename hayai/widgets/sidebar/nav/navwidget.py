@@ -1,8 +1,7 @@
 from typing import Optional
 from typing import List
 
-from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QColor, QIcon, QPainter, QPixmap
+from PyQt5.QtCore import  Qt, pyqtSignal
 from PyQt5.QtWidgets import QAbstractButton, QButtonGroup, QGroupBox, QSizePolicy, QVBoxLayout, QWidget
 from PyQt5.QtWidgets import QPushButton
 from .navbutton import QNavButton

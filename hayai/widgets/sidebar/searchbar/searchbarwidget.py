@@ -1,8 +1,12 @@
 from typing import Optional
+from PyQt5.QtCore import QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import  QIcon, QPixmap
 from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QWidget
 
 class QSearchbar(QFrame):
+    lineEditTextChanged: pyqtSignal = pyqtSignal(str)
+    lineEditFocusGained: pyqtSignal = pyqtSignal()
+    
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -15,11 +19,13 @@ class QSearchbar(QFrame):
         searchLineEdit.setPlaceholderText("Quick search")
         searchLineEdit.setFrame(False)
         searchLineEdit.setAutoFillBackground(False)
+        searchLineEdit.installEventFilter(self)
 
         clearButton: QPushButton = QPushButton()
         clearButton.setIcon(QIcon("hayai/widgets/sidebar/assets/icons/clear.png"))
 
         clearButton.clicked.connect(searchLineEdit.clear)
+        searchLineEdit.textChanged.connect(self.lineEditTextChanged)
 
         searchbarLayout: QHBoxLayout = QHBoxLayout()
         searchbarLayout.addWidget(searchLabel)
@@ -30,5 +36,10 @@ class QSearchbar(QFrame):
         self.setLayout(searchbarLayout)
 
         self.setObjectName("QSearchbar")
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn and isinstance(obj, QLineEdit):#pyright: ignore
+            self.lineEditFocusGained.emit()
+        return super().eventFilter(obj, event)
 
 

@@ -72,6 +72,7 @@ QGroupBox#QNav QPushButton {
   font-size: 18px;
   background-color: None
 }
+/*
 QGroupBox#QNav QPushButton:checked {
   color: red;
   background-color: none;
@@ -80,6 +81,7 @@ QGroupBox#QNav QPushButton:checked {
   border-radius: 1px;
   border-bottom: 0px;
 }
+*/
 QGroupBox#QNav QPushButton:checked::indicator {
   background-color: transparent;
 }
@@ -105,10 +107,12 @@ QGroupBox#QProviderList {
   background-color: inherit;
 }
 
-#QHome QLabel {
+#QHome QLabel,#QHome QPushButton {
   font-size: 18px;
   color: #7c859E;
+  border: 0px;
 }
+
 /* Settings for the category widget */
 #QCategory {
   border: None;
@@ -121,8 +125,8 @@ QGroupBox#QProviderList {
   border-color: transparent;
 }
 
-QFilmListView {
-  show-decoration-selected: 0;
+QListView::item:selected{
+  background-color:none;
 }
 
 #QFilmListView::item {
@@ -130,15 +134,6 @@ QFilmListView {
   outline: none;
 }
 
-#QFilmListView::item:selected {
-  background-color: black;
-  border: 0px solid;
-}
-
-#QFilmListView::item:selected:active {
-  background-color: black;
-  border: 0px;
-}
 
 #QFilmListView::item:hover {
   background-color: black;
@@ -146,15 +141,14 @@ QFilmListView {
 
 /* Settings for the header */
 #QHeader {
-  /*background-color: inherit;*/
-  background-color: #1a161f;
+  background-color: inherit;
 }
 
-#QHeader QPushButton {
+#QHeader QLabel {
   color: #7c859E;
   border: 0px;
-  font-size: 25px;
-  text-transform: capitalize;
+  font-size: 18px;
+  text-transform: uppercase;
 }
 
 /* Settings for the scroll button */

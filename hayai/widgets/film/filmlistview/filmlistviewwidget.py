@@ -1,6 +1,6 @@
 from typing import Optional
-from PyQt5.QtCore import QEvent, QSize, Qt
-from PyQt5.QtWidgets import QFrame, QListView, QWidget
+from PyQt5.QtCore import  QEasingCurve, QEvent, QPropertyAnimation, QSize
+from PyQt5.QtWidgets import  QListView, QWidget
 
 from ..filmlistmodel import QFilmListModel
 
@@ -10,8 +10,12 @@ class QFilmListView(QListView):
         super().__init__(parent=parent)
 
         self.minimunIconSize: QSize = QSize(150,int(150 * 1.5))
+        self.animation: QPropertyAnimation = QPropertyAnimation(self.horizontalScrollBar(), b"value")
+        self.animation.setDuration(300)
+        self.animation.setEasingCurve(QEasingCurve.OutQuad)
+
         self.setLayoutMode(QListView.LayoutMode.Batched)
-        self.setBatchSize(32)
+        self.setBatchSize(50)
         self.setViewMode(QListView.ViewMode.IconMode)
         self.setFlow(QListView.Flow.LeftToRight)
         self.setUniformItemSizes(True)
@@ -23,6 +27,7 @@ class QFilmListView(QListView):
         self.viewport().installEventFilter(self)
         self.setObjectName("QFilmListView")
         self.currentIconSize: QSize = self.iconSize()
+        self.setAutoScroll(True)
         #self.setFrameStyle(QFrame.NoFrame)
 
     def sizeHint(self) -> QSize:
@@ -33,6 +38,27 @@ class QFilmListView(QListView):
 
     def minimumSizeHint(self) -> QSize:
             return self.sizeHint()
+
+    def scrollRight(self):
+        currentPos = self.horizontalScrollBar().value()
+        pageSize = self.horizontalScrollBar().pageStep()
+        scrollPos = currentPos + pageSize
+
+        self.animation.stop()
+        self.animation.setStartValue(currentPos)
+        self.animation.setEndValue(scrollPos)
+        self.animation.start()
+
+    def scrollLeft(self):
+        currentPos = self.horizontalScrollBar().value()
+        pageSize = self.horizontalScrollBar().pageStep()
+        scrollPos = currentPos - pageSize
+
+        self.animation.stop()
+        self.animation.setStartValue(currentPos)
+        self.animation.setEndValue(scrollPos)
+        self.animation.start()
+
     def eventFilter(self, obj, event):
         if obj is self.viewport() and event.type() == QEvent.Resize: #pyright: ignore
             viewport_width = self.viewport().width()
@@ -51,6 +77,5 @@ class QFilmListView(QListView):
                 model.iconSize = iconSize
                 self.setIconSize(iconSize)
                 self.updateGeometry()
-                #self.update()
 
         return super().eventFilter(obj, event)

@@ -1,15 +1,18 @@
-from typing import Dict
-from PyQt5.QtCore import pyqtSignal
+from typing import Dict, Optional
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QColor, QPalette
 from .nav import QNav
 from .providerlist import QProviderList
 from .logo import QLogo
 from .searchbar import QSearchbar
+from provider_parsers import ProviderParser
 from PyQt5.QtWidgets import (
     QAbstractButton,
     QButtonGroup,
     QFrame,
     QHBoxLayout,
-    QVBoxLayout
+    QVBoxLayout,
+    QWidget
 )
 
 class QSidebar(QFrame):
@@ -19,10 +22,13 @@ class QSidebar(QFrame):
     generalButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
     navButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
     homeButtonToggle: pyqtSignal = pyqtSignal(QAbstractButton)
+    lineEditTextChanged: pyqtSignal = pyqtSignal(str)
+    lineEditFocusGained: pyqtSignal = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self,provider: type[ProviderParser],parent: Optional[QWidget] = None):
         super().__init__()
 
+        self.previousButton: Optional[QAbstractButton] = None
         leftFrame: QFrame = QFrame()
         leftFrame.setObjectName("left")
 
@@ -39,10 +45,11 @@ class QSidebar(QFrame):
         providerNav: QProviderList = QProviderList(["sol","zoro","asian"])
         menuNav: QNav = QNav("menu",["home","movies","tv shows"])
         librayNav: QNav = QNav("library",["downloads"])
-        categoryNav: QNav = QNav("category",["latest","trending","coming soon"])
+        categoryNav: QNav = QNav("category",provider.categories)
         generalNav: QNav = QNav("general",["setting"])
 
         self.buttonGroup: QButtonGroup = QButtonGroup()
+        self.buttonGroup.setExclusive(False)
 
         id: int = 0
         self.buttonSignalMapping: Dict = {}
@@ -67,17 +74,20 @@ class QSidebar(QFrame):
             id +=1
 
         self.buttonGroup.buttonToggled.connect(self.buttonToggled)
+        searchbar.lineEditFocusGained.connect(self.lineEditFocusGained)
+        searchbar.lineEditFocusGained.connect(self.resetPreviousButton)
+        searchbar.lineEditTextChanged.connect(self.lineEditTextChanged)
 
         topFrameLayout: QVBoxLayout = QVBoxLayout()
         topFrameLayout.addWidget(logo)
         topFrameLayout.addWidget(searchbar)
-        topFrameLayout.setContentsMargins(0,20,10,20)
+        topFrameLayout.setContentsMargins(0,10,10,20)
         topFrameLayout.setSpacing(20)
         topFrame.setLayout(topFrameLayout)
 
         leftFrameLayout: QVBoxLayout = QVBoxLayout()
         leftFrameLayout.addWidget(providerNav)
-        leftFrameLayout.setContentsMargins(0,20,0,20)
+        leftFrameLayout.setContentsMargins(0,0,0,20)
         leftFrameLayout.setSpacing(0)
         leftFrame.setLayout(leftFrameLayout)
 
@@ -104,5 +114,9 @@ class QSidebar(QFrame):
         self.setFixedWidth(250)
         self.setObjectName("QSidebar")
     def buttonToggled(self,button: QAbstractButton):
-        self.buttonSignalMapping[self.buttonGroup.id(button)].emit(button)
-        
+        if button is not self.previousButton:
+            self.buttonSignalMapping[self.buttonGroup.id(button)].emit(button)
+            self.previousButton = button
+    def resetPreviousButton(self):
+        self.previousButton = None;
+
