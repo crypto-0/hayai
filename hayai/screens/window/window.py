@@ -3,6 +3,7 @@ from typing import Optional
 from PyQt5.QtWidgets import (
     QAbstractButton,
     QFrame,
+    QPushButton,
     QScrollArea,
     QSizePolicy,
     QStackedLayout,
@@ -19,6 +20,8 @@ from hayai.widgets import QHeader
 from ..category import QCategory
 from ..home  import QHome
 from ..search import QSearch
+from ..filmdetail import QFilmDetail
+from hayai.screens import home
 
 class QWindow(QMainWindow):
 
@@ -29,6 +32,8 @@ class QWindow(QMainWindow):
 
         self.sidebar: QSidebar = QSidebar(Sol)
 
+        self.filmDetail: QFilmDetail = QFilmDetail()
+
         self.category: QCategory = QCategory(Sol)
 
         self.home: QHome = QHome(Sol)
@@ -37,19 +42,6 @@ class QWindow(QMainWindow):
 
         mainFrame: QFrame = QFrame()
         mainFrame.setObjectName("QMainFrame")
-
-
-        scrollArea = QScrollArea()
-        scrollArea.setObjectName("scroll-area")
-        scrollArea.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
-        
-        scrollArea.setWidget(self.home)
-        scrollArea.horizontalScrollBar().setEnabled(False)
-        scrollArea.verticalScrollBar().setEnabled(True)
-        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        scrollArea.setWidgetResizable(True)
-        scrollArea.setContentsMargins(0,0,0,0)
-
 
         sidebarDock: QDockWidget = QDockWidget()
         sidebarDock.setWidget(self.sidebar)
@@ -68,12 +60,15 @@ class QWindow(QMainWindow):
         
 
         self.mainFrameLayout: QStackedLayout = QStackedLayout()
-        self.mainFrameLayout.addWidget(scrollArea)
-        self.mainFrameLayout.addWidget(self.category)
+        #self.mainFrameLayout.setStackingMode(QStackedLayout.StackingMode.StackAll)
+        self.mainFrameLayout.addWidget(self.home)
         self.mainFrameLayout.addWidget(self.search)
+        self.mainFrameLayout.addWidget(self.category)
+        self.mainFrameLayout.addWidget(self.filmDetail)
         self.mainFrameLayout.setContentsMargins(5,0,0,0)
-        self.mainFrameLayout.setSpacing(0)
-        self.mainFrameLayout.setCurrentIndex(0)
+        #self.mainFrameLayout.setSpacing(0)
+        self.mainFrameLayout.setCurrentIndex(3)
+        #self.mainFrameLayout.setCurrentIndex(0)
         mainFrame.setLayout(self.mainFrameLayout)
 
         self.setCentralWidget(mainFrame)

@@ -1,0 +1,1 @@
+from .filmdetail import QFilmDetail

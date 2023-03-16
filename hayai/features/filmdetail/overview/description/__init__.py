@@ -1,0 +1,1 @@
+from .descriptionwidget import QDescription

@@ -1,1 +1,0 @@
-from .filmlistviewwidget import QFilmListView

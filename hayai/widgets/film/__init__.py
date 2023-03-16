@@ -1,2 +1,2 @@
 from .filmlistmodel import QFilmListModel
-from .filmlistview import QFilmListView
+from .filmdelegate import QFilmDelegate

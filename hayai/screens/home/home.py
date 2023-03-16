@@ -1,16 +1,18 @@
 from typing import List, Optional, Type
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QModelIndex, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 
-from PyQt5.QtWidgets import  QFrame, QHBoxLayout,  QLabel, QListView, QPushButton,  QSizePolicy, QVBoxLayout
+from PyQt5.QtWidgets import  QFrame, QHBoxLayout,  QLabel, QListView, QPushButton, QScrollArea,  QSizePolicy, QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 from provider_parsers import ProviderParser
 
 from hayai.widgets.film import QFilmListModel
-from hayai.widgets.film import QFilmListView
+from hayai.widgets import QResizableIconListView
+from hayai.widgets.film import QFilmDelegate
 
 class QHome(QFrame):
 
+    filmClicked: pyqtSignal = pyqtSignal(QModelIndex)
     def __init__(self, providerParser: Type[ProviderParser] , parent: Optional[QWidget] = None ) -> None:
         super().__init__(parent=parent)
 
@@ -20,9 +22,25 @@ class QHome(QFrame):
 
         self.categoryView: List[QListView] = []
 
-        homeLayout: QVBoxLayout = QVBoxLayout()
+
+        scrollAreaFrame: QFrame = QFrame()
+
+        scrollArea = QScrollArea()
+        scrollArea.setObjectName("scroll-area")
+        scrollArea.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
+        
+        scrollArea.setWidget(scrollAreaFrame)
+        scrollArea.horizontalScrollBar().setEnabled(False)
+        scrollArea.verticalScrollBar().setEnabled(True)
+        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setContentsMargins(0,0,0,0)
+
+
+        scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         for category in providerParser.home_categories:
             categoryFrame: QFrame = QFrame()
+            categoryFrame.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
 
             categoryTitle: QLabel = QLabel(category.capitalize())
 
@@ -40,14 +58,14 @@ class QHome(QFrame):
             righNavButton.setIconSize(QSize(24,24))
             righNavButton.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
 
-            categoryModel: QFilmListModel = QFilmListModel(self.providerParser.parse_category(category=category,fetch_image=False),maxFilms=30)
-            #categoryModel: QFilmListModel = QFilmListModel()
+            #categoryModel: QFilmListModel = QFilmListModel(self.providerParser.parse_category(category=category,fetch_image=False),maxFilms=30)
+            categoryModel: QFilmListModel = QFilmListModel()
 
-            categoryView: QFilmListView = QFilmListView()
+            categoryView: QResizableIconListView = QResizableIconListView()
+            categoryView.setItemDelegate(QFilmDelegate())
             categoryView.setModel(categoryModel)
             categoryView.setWrapping(False)
-            categoryView.update()
-            categoryView.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
+            categoryView.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
             categoryView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
             categoryView.horizontalScrollBar().setEnabled(False)
             
@@ -68,11 +86,17 @@ class QHome(QFrame):
             categoryFrameLayout.addWidget(categoryView)
             categoryFrame.setLayout(categoryFrameLayout)
 
-            homeLayout.addWidget(categoryFrame)
+            scrollAreaFrameLayout.addWidget(categoryFrame)
 
+        scrollAreaFrameLayout.setContentsMargins(0,0,0,0)
+        scrollAreaFrameLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scrollAreaFrameLayout.setSpacing(5)
+        scrollAreaFrame.setLayout(scrollAreaFrameLayout)
+
+        homeLayout: QHBoxLayout = QHBoxLayout()
+        homeLayout.addWidget(scrollArea)
         homeLayout.setContentsMargins(0,0,0,0)
-        homeLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        homeLayout.setSpacing(5)
+        homeLayout.setSpacing(0)
         self.setLayout(homeLayout)
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)

@@ -3,6 +3,9 @@ QWidget#window {
   background-color: #0d0c0f;
 }
 
+QMenuBar {
+  background-color: #0d0c0f;
+}
 /* Settings for the title bar */
 QWidget#window::titlebar {
   background-color: #0d0c0f;
@@ -17,7 +20,7 @@ QWidget#window::separator {
 
 /* Settings for the main frame */
 #QMainFrame {
-  background-color: black;
+  background-color: inherit;
 }
 
 /* Settings for the right sidebar */
@@ -72,16 +75,7 @@ QGroupBox#QNav QPushButton {
   font-size: 18px;
   background-color: None
 }
-/*
-QGroupBox#QNav QPushButton:checked {
-  color: red;
-  background-color: none;
-  border-right: 2px solid red;
-  border-top: 0px;
-  border-radius: 1px;
-  border-bottom: 0px;
-}
-*/
+
 QGroupBox#QNav QPushButton:checked::indicator {
   background-color: transparent;
 }
@@ -96,6 +90,57 @@ QGroupBox#QProviderList {
   padding-top: 30px;
 }
 
+/* Settings for the filmDetail widget */
+#QFilmDetail QPushButton, #QFilmDetail QLabel {
+  color: #a1acbc;
+  font-size: 16px;
+}
+
+#QOverview QFrame{
+  background-color: inherit;
+}
+#QOverview{
+  background-color: inherit;
+}
+
+
+#QFilmDetail #title{
+  font-size: 20px;
+  color: white;
+}
+
+#QFilmDetail QPushButton {
+  border: 1px solid #7c859E;
+  border-radius: 4px;
+}
+
+#QFilmDetail QComboBox{
+  /*border: 1px solid #7c859E;*/
+  border: none;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #a1acbc;
+  background-color:inherit;
+}
+#QFilmDetail QFrame{
+  background-color: inherit;
+}
+
+
+#QFilmDetail QComboBox QAbstractItemView {
+  border: 1px solid #7c859E;
+  color: #a1acbc;
+  background-color: inherit;
+  selection-background-color: transparent;
+  selection-color: white;
+}
+
+#QDetail #QDetailsLabel{
+  color: rgba(255,255,255,1)
+}
+#QDetail #QGenresLabel, #QDetail #QCountryLabel, #QDetail #QRuntimeLabel{
+  color: rgba(255,255,255,.9)
+}
 /* Settings for the home widget */
 #QHome {
   border: 0px;
@@ -119,7 +164,11 @@ QGroupBox#QProviderList {
 }
 
 /* Settings for the film list view */
-#QFilmListView {
+
+QListView::item {
+  text-align: left;
+}
+#QResizableIconListView {
   background-color: inherit;
   border: 2px solid;
   border-color: transparent;
@@ -129,16 +178,19 @@ QListView::item:selected{
   background-color:none;
 }
 
-#QFilmListView::item {
+#QResizableIconListView::item {
   color: #a1acbc;
   outline: none;
 }
 
 
-#QFilmListView::item:hover {
+#QResizableIconListView::item:hover {
   background-color: black;
 }
 
+#QFilmDetail{
+  background-color:transparent;
+}
 /* Settings for the header */
 #QHeader {
   background-color: inherit;
@@ -184,6 +236,7 @@ QScrollBar::sub-line {
 /* Settings for the scroll area */
 QScrollArea {
   border: none;
+  background-color: #0d0d0f;
 }
 
 QScrollArea QFrame {

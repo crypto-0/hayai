@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout
 from PyQt5.QtWidgets import QWidget
 from typing import Optional, Type
 from hayai.widgets.film import QFilmListModel
-from hayai.widgets.film import QFilmListView
+from hayai.widgets import QResizableIconListView
 from provider_parsers import ProviderParser
 
 class QCategory(QFrame):
@@ -15,7 +15,7 @@ class QCategory(QFrame):
 
         self.categoryModel: QFilmListModel =QFilmListModel()
 
-        self.categoryView: QFilmListView = QFilmListView()
+        self.categoryView: QResizableIconListView = QResizableIconListView()
         self.categoryView.setWrapping(True)
         self.categoryView.setModel(self.categoryModel)
         self.categoryView.setBatchSize(10)
@@ -31,6 +31,6 @@ class QCategory(QFrame):
         self.setObjectName("QCategory")
 
     def load(self,categoryButton: QAbstractButton):
-        self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
-        #self.categoryModel.setFilmGenerator(None)
+        #self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
+        self.categoryModel.setFilmGenerator(None)
 

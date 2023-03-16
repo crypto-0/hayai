@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout
+from PyQt5.QtWidgets import  QFrame, QHBoxLayout
 from PyQt5.QtWidgets import QWidget
 from typing import Optional, Type
 from hayai.widgets.film import QFilmListModel
-from hayai.widgets.film import QFilmListView
+from hayai.widgets import QResizableIconListView
 from provider_parsers import ProviderParser
 
 class QSearch(QFrame):
@@ -14,7 +14,7 @@ class QSearch(QFrame):
 
         self.searchModel: QFilmListModel =QFilmListModel()
 
-        self.searchView: QFilmListView = QFilmListView()
+        self.searchView: QResizableIconListView = QResizableIconListView()
         self.searchView.setWrapping(True)
         self.searchView.setModel(self.searchModel)
 
@@ -28,6 +28,6 @@ class QSearch(QFrame):
         self.setObjectName("QSearch")
 
     def search(self,query: str):
-        self.searchModel.setFilmGenerator(self.providerParser.parse_search(query,fetch_image = False))
-        #self.categoryModel.setFilmGenerator(None)
+        #self.searchModel.setFilmGenerator(self.providerParser.parse_search(query,fetch_image = False))
+        self.searchModel.setFilmGenerator(None)
 
