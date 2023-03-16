@@ -1,16 +1,17 @@
 from typing import List, Optional, Type
 from PyQt5.QtCore import QModelIndex, QSize, Qt
-from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-import math
+from PyQt5.QtGui import QIcon
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QComboBox,  QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 from hayai.features.filmdetail import QOverview
 from hayai.features.filmdetail import SeasonListModel
 from hayai.features.filmdetail import EpisodeListModel
 from hayai.widgets.film.filmdelegate.filmdelegatewidget import QFilmDelegate
 from hayai.widgets.resizableiconlistview import QResizableIconListView
 from hayai.widgets.film import QFilmListModel
+from hayai.widgets.film import QFilmRow
 from provider_parsers import Season, Episode, ProviderParser,FilmInfo
+
 
 class QFilmDetail(QFrame):
 
@@ -53,62 +54,17 @@ class QFilmDetail(QFrame):
         self.episodeView.horizontalScrollBar().setEnabled(False)
         self.episodeView.setModel(self.episodeModel)
 
-        recommendFrame: QFrame = QFrame()
-        recommendFrame.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
-
-        recommendTitle: QLabel = QLabel("You may also like")
-
-        navFrame: QFrame = QFrame()
-        navFrame.setFrameStyle(QFrame.NoFrame)
-
-        leftNavButton: QPushButton = QPushButton()
-        leftNavButton.setIcon(QIcon("hayai/screens/home/assets/icons/go-back.png"))
-        leftNavButton.setIconSize(QSize(24,24))
-        leftNavButton.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
-
-
-        righNavButton: QPushButton = QPushButton()
-        righNavButton.setIcon(QIcon("hayai/screens/home/assets/icons/go-forward.png"))
-        righNavButton.setIconSize(QSize(24,24))
-        righNavButton.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
-
-        self.recommendModel: QFilmListModel = QFilmListModel()
-
-        self.recommendView: QResizableIconListView = QResizableIconListView()
-        self.recommendView.setItemDelegate(QFilmDelegate())
-        self.recommendView.setModel(self.recommendModel)
-        self.recommendView.setWrapping(False)
-        self.recommendView.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
-        self.recommendView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
-        self.recommendView.horizontalScrollBar().setEnabled(False)
-        
-        righNavButton.clicked.connect(self.recommendView.scrollRight)
-        leftNavButton.clicked.connect(self.recommendView.scrollLeft)
-        #self.recommendView.clicked.connect(self.filmClicked)
-
-        navFrameLayout: QHBoxLayout = QHBoxLayout()
-        navFrameLayout.addWidget(recommendTitle)
-        navFrameLayout.addWidget(leftNavButton,Qt.AlignmentFlag.AlignRight)
-        navFrameLayout.addWidget(righNavButton,Qt.AlignmentFlag.AlignRight)
-        navFrameLayout.setContentsMargins(0,0,10,0)
-        navFrameLayout.setSpacing(10)
-        navFrame.setLayout(navFrameLayout)
-
-        recommendFrameLayout: QVBoxLayout = QVBoxLayout()
-        recommendFrameLayout.setContentsMargins(5,10,0,0)
-        recommendFrameLayout.setSpacing(0)
-        recommendFrameLayout.addWidget(navFrame)
-        recommendFrameLayout.addWidget(self.recommendView)
-        recommendFrame.setLayout(recommendFrameLayout)
+        self.recommendRow: QFilmRow = QFilmRow("You may also like")
 
         self.seasonComboBox.currentIndexChanged.connect(self.__updateEpisodes)
+        self.recommendRow.filmClicked.connect(self.updateFilmDetail)
 
 
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         scrollAreaFrameLayout.addWidget(self.overview)
         scrollAreaFrameLayout.addWidget(self.seasonComboBox)
         scrollAreaFrameLayout.addWidget(self.episodeView)
-        scrollAreaFrameLayout.addWidget(recommendFrame)
+        scrollAreaFrameLayout.addWidget(self.recommendRow)
         scrollAreaFrameLayout.addStretch()
         scrollAreaFrameLayout.setContentsMargins(0,0,0,0)
         scrollAreaFrameLayout.setSpacing(10)
@@ -139,7 +95,7 @@ class QFilmDetail(QFrame):
         else:
             self.seasonComboBox.setVisible(False)
             self.episodeView.setVisible(False)
-        self.recommendModel.setFilmGenerator(iter(filmInfo.recommendation))
+        self.recommendRow.setFilmGenerator(iter(filmInfo.recommendation))
 
     def __updateEpisodes(self,index: int):
         id: str = self.seasonComboBox.currentData(SeasonListModel.idRole)

@@ -3,9 +3,6 @@ from typing import Optional
 from PyQt5.QtWidgets import (
     QAbstractButton,
     QFrame,
-    QPushButton,
-    QScrollArea,
-    QSizePolicy,
     QStackedLayout,
     QWidget,
     QMainWindow,
@@ -21,7 +18,6 @@ from ..category import QCategory
 from ..home  import QHome
 from ..search import QSearch
 from ..filmdetail import QFilmDetail
-from hayai.screens import home
 
 class QWindow(QMainWindow):
 
@@ -57,14 +53,16 @@ class QWindow(QMainWindow):
         self.sidebar.lineEditFocusGained.connect(self.loadSearch)
         self.sidebar.lineEditTextChanged.connect(self.search.search)
         self.home.filmClicked.connect(self.loadFilmDetail)
+        self.category.filmClicked.connect(self.loadFilmDetail)
+        self.search.filmClicked.connect(self.loadFilmDetail)
 
         
 
         self.mainFrameLayout: QStackedLayout = QStackedLayout()
         #self.mainFrameLayout.setStackingMode(QStackedLayout.StackingMode.StackAll)
         self.mainFrameLayout.addWidget(self.home)
-        self.mainFrameLayout.addWidget(self.search)
         self.mainFrameLayout.addWidget(self.category)
+        self.mainFrameLayout.addWidget(self.search)
         self.mainFrameLayout.addWidget(self.filmDetail)
         self.mainFrameLayout.setContentsMargins(5,0,0,0)
         #self.mainFrameLayout.setCurrentIndex(3)
