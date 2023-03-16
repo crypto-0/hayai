@@ -58,8 +58,8 @@ class QHome(QFrame):
             righNavButton.setIconSize(QSize(24,24))
             righNavButton.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
 
-            #categoryModel: QFilmListModel = QFilmListModel(self.providerParser.parse_category(category=category,fetch_image=False),maxFilms=30)
-            categoryModel: QFilmListModel = QFilmListModel()
+            categoryModel: QFilmListModel = QFilmListModel(self.providerParser.parse_category(category=category,fetch_image=False),maxFilms=30)
+            #categoryModel: QFilmListModel = QFilmListModel()
 
             categoryView: QResizableIconListView = QResizableIconListView()
             categoryView.setItemDelegate(QFilmDelegate())
@@ -71,6 +71,7 @@ class QHome(QFrame):
             
             righNavButton.clicked.connect(categoryView.scrollRight)
             leftNavButton.clicked.connect(categoryView.scrollLeft)
+            categoryView.clicked.connect(self.filmClicked)
 
             navFrameLayout: QHBoxLayout = QHBoxLayout()
             navFrameLayout.addWidget(categoryTitle)

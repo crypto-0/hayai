@@ -114,9 +114,9 @@ class QSidebar(QFrame):
         self.setFixedWidth(250)
         self.setObjectName("QSidebar")
     def buttonToggled(self,button: QAbstractButton):
-        if button is not self.previousButton:
-            self.buttonSignalMapping[self.buttonGroup.id(button)].emit(button)
-            self.previousButton = button
+        #if button is not self.previousButton:
+        self.buttonSignalMapping[self.buttonGroup.id(button)].emit(button)
+        #    self.previousButton = button
     def resetPreviousButton(self):
         self.previousButton = None;
 

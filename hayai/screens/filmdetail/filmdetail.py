@@ -1,19 +1,23 @@
-from typing import Optional
-from PyQt5.QtCore import QSize, Qt
+from typing import List, Optional, Type
+from PyQt5.QtCore import QModelIndex, QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
 import math
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QHBoxLayout, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 from hayai.features.filmdetail import QOverview
 from hayai.features.filmdetail import SeasonListModel
 from hayai.features.filmdetail import EpisodeListModel
+from hayai.widgets.film.filmdelegate.filmdelegatewidget import QFilmDelegate
 from hayai.widgets.resizableiconlistview import QResizableIconListView
-from provider_parsers import Season, Episode
+from hayai.widgets.film import QFilmListModel
+from provider_parsers import Season, Episode, ProviderParser,FilmInfo
 
 class QFilmDetail(QFrame):
 
-    def __init__(self,parent: Optional[QWidget] = None):
+    def __init__(self,providerParser: Type[ProviderParser],parent: Optional[QWidget] = None):
         super().__init__(parent=parent)
+
+        self.providerParser: Type[ProviderParser] = providerParser
 
         scrollAreaFrame: QFrame = QFrame()
         scrollAreaFrame.setObjectName("QScrollAreaFrame")
@@ -30,22 +34,10 @@ class QFilmDetail(QFrame):
         scrollArea.setContentsMargins(0,0,0,0)
 
         self.overview: QOverview = QOverview()
-        title: str = "Fullmetal Alchemist: Brotherhood One piece"
-        description: str = "Gold Roger was known as the  the strongest and most infamous being to have sailed the Grand Line. The capture and execution of Roger by the World Government brought a change throughout the world. His last words before his death revealed the existence of the greatest treasure in the world, One Piece. It was this revelation that brought about the Grand Age of Pirates, men who dreamed of finding One Piece—which promises an unlimited amount of riches and fame—and quite possibly the pinnacle of glory and the title of the Pirate King. Enter Monkey Luffy, a 17-year-old boy who defies your standard definition of a pirate. Rather than the popular persona of a wicked, hardened, toothless pirate ransacking villages for fun, Luffy's reason for being a pirate is one of pure wonder: the thought of an exciting adventure that leads him to intriguing people and ultimately, the promised treasure. Following in the footsteps of his childhood hero, Luffy and his crew travel across the Grand Line, experiencing crazy adventures, unveiling dark mysteries and battling strong enemies, all in order to reach the most coveted of all fortunes—One Piece. [Written by MAL Rewrite] - Less"
-        #description: str = "Test"
-        #icon: QIcon = QIcon("hayai/assets/imgs/creed3.jpg")
-        icon: QIcon = QIcon("hayai/assets/imgs/creed3.jpg")
-        self.overview.updateOverview(icon,title,description)
 
         self.seasonListModel: SeasonListModel = SeasonListModel()
-        self.seasonListModel.loadSeasons([Season("Season 1","id"),Season("Season 2","id"),Season("Season 1","id"),Season("Season 2","id")])
 
         self.episodeModel : EpisodeListModel = EpisodeListModel()
-        episodes = []
-        for i in range(20):
-            episode: Episode = Episode(f"{i}","id",f"Episode: {i}")
-            episodes.append(episode)
-        self.episodeModel.loadEpisodes(episodes)
 
         self.seasonComboBox: QComboBox = QComboBox()
         self.seasonComboBox.setModel(self.seasonListModel)
@@ -60,14 +52,64 @@ class QFilmDetail(QFrame):
         self.episodeView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
         self.episodeView.horizontalScrollBar().setEnabled(False)
         self.episodeView.setModel(self.episodeModel)
-        #self.episodeView.setMinimumHeight(total_height)
 
-        scrollArea.verticalScrollBar().valueChanged.connect(self.episodeView.verticalScrollBar().setValue)
+        recommendFrame: QFrame = QFrame()
+        recommendFrame.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+
+        recommendTitle: QLabel = QLabel("You may also like")
+
+        navFrame: QFrame = QFrame()
+        navFrame.setFrameStyle(QFrame.NoFrame)
+
+        leftNavButton: QPushButton = QPushButton()
+        leftNavButton.setIcon(QIcon("hayai/screens/home/assets/icons/go-back.png"))
+        leftNavButton.setIconSize(QSize(24,24))
+        leftNavButton.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
+
+
+        righNavButton: QPushButton = QPushButton()
+        righNavButton.setIcon(QIcon("hayai/screens/home/assets/icons/go-forward.png"))
+        righNavButton.setIconSize(QSize(24,24))
+        righNavButton.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
+
+        self.recommendModel: QFilmListModel = QFilmListModel()
+
+        self.recommendView: QResizableIconListView = QResizableIconListView()
+        self.recommendView.setItemDelegate(QFilmDelegate())
+        self.recommendView.setModel(self.recommendModel)
+        self.recommendView.setWrapping(False)
+        self.recommendView.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+        self.recommendView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
+        self.recommendView.horizontalScrollBar().setEnabled(False)
+        
+        righNavButton.clicked.connect(self.recommendView.scrollRight)
+        leftNavButton.clicked.connect(self.recommendView.scrollLeft)
+        #self.recommendView.clicked.connect(self.filmClicked)
+
+        navFrameLayout: QHBoxLayout = QHBoxLayout()
+        navFrameLayout.addWidget(recommendTitle)
+        navFrameLayout.addWidget(leftNavButton,Qt.AlignmentFlag.AlignRight)
+        navFrameLayout.addWidget(righNavButton,Qt.AlignmentFlag.AlignRight)
+        navFrameLayout.setContentsMargins(0,0,10,0)
+        navFrameLayout.setSpacing(10)
+        navFrame.setLayout(navFrameLayout)
+
+        recommendFrameLayout: QVBoxLayout = QVBoxLayout()
+        recommendFrameLayout.setContentsMargins(5,10,0,0)
+        recommendFrameLayout.setSpacing(0)
+        recommendFrameLayout.addWidget(navFrame)
+        recommendFrameLayout.addWidget(self.recommendView)
+        recommendFrame.setLayout(recommendFrameLayout)
+
+        self.seasonComboBox.currentIndexChanged.connect(self.__updateEpisodes)
+
 
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         scrollAreaFrameLayout.addWidget(self.overview)
         scrollAreaFrameLayout.addWidget(self.seasonComboBox)
         scrollAreaFrameLayout.addWidget(self.episodeView)
+        scrollAreaFrameLayout.addWidget(recommendFrame)
+        scrollAreaFrameLayout.addStretch()
         scrollAreaFrameLayout.setContentsMargins(0,0,0,0)
         scrollAreaFrameLayout.setSpacing(10)
         scrollAreaFrame.setLayout(scrollAreaFrameLayout)
@@ -79,15 +121,29 @@ class QFilmDetail(QFrame):
         self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
         self.setObjectName("QFilmDetail")
 
-    """
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        rowHeight = self.episodeView.sizeHintForRow(0)
-        colWidth = self.episodeView.sizeHintForColumn(0)
-        numCols: int = self.episodeView.width() // colWidth
-        numCols = max(1,numCols)
-        rows: int = math.ceil(self.episodeModel.rowCount()/ numCols)
-        total_height = rowHeight * rows
-        self.episodeView.setMinimumHeight(total_height)
-        super().resizeEvent(event)
-        """
+    def updateFilmDetail(self,index: QModelIndex):
+        link: str = index.data(QFilmListModel.linkRole)
+        isTv: bool = index.data(QFilmListModel.isTvRole)
+        posterIcon: QIcon = index.data(Qt.DecorationRole) #pyright: ignore
+        filmInfo: FilmInfo = self.providerParser.parse_info(link)
+        self.overview.updateOverview(posterIcon=posterIcon,title=filmInfo.title,description=filmInfo.description,genre=filmInfo.genre,country=filmInfo.country,duration=filmInfo.duration + "min")
+        if isTv:
+            id: str = link.rsplit("-",1)[-1]
+            seasons: List[Season] = self.providerParser.parse_seasons(id)
+            if len(seasons) > 0:
+                self.seasonListModel.loadSeasons(seasons=seasons)
+                seasonIndex: QModelIndex = self.seasonListModel.index(0,0,QModelIndex())
+                self.__updateEpisodes(seasonIndex)
+            self.seasonComboBox.setVisible(True)
+            self.episodeView.setVisible(True)
+        else:
+            self.seasonComboBox.setVisible(False)
+            self.episodeView.setVisible(False)
+        self.recommendModel.setFilmGenerator(iter(filmInfo.recommendation))
+
+    def __updateEpisodes(self,index: int):
+        id: str = self.seasonComboBox.currentData(SeasonListModel.idRole)
+        episodes: List[Episode] = self.providerParser.parse_episodes(id)
+        self.episodeModel.loadEpisodes(episodes=episodes)
+
 

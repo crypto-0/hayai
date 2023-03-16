@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QWidget
 from provider_parsers.provider_parser import Season
 
 class SeasonListModel(QAbstractListModel):
+    idRole: int = Qt.UserRole #pyright: ignore
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent=parent)
@@ -18,17 +19,16 @@ class SeasonListModel(QAbstractListModel):
         if index.row() < 0 or index.row() >= len(self.seasons):
             return None
         if role == Qt.DisplayRole: #pyright: ignore
-            return self.seasons[index.row()].season_number
-        if role == Qt.UserRole: #pyright: ignore
+            return "Season " + self.seasons[index.row()].season_number
+        if role == SeasonListModel.idRole: #pyright: ignore
             return self.seasons[index.row()].id
         return None
 
     def loadSeasons(self,seasons: List[Season]):
-        if seasons is not None:
-            self.beginResetModel()
-            self.seasons.clear()
-            self.seasons.extend(seasons)
-            self.endResetModel()
+        self.beginResetModel()
+        self.seasons.clear()
+        self.seasons.extend(seasons)
+        self.endResetModel()
     def clear(self):
         self.beginResetModel()
         self.seasons.clear()

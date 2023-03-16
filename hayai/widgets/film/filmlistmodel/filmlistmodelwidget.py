@@ -13,6 +13,9 @@ import requests
 class QFilmListModel(QAbstractListModel):
     session = requests.session()
     cache = TTLCache(maxsize=100,ttl=180)
+    extraRole: int = Qt.UserRole  #pyright: ignore
+    isTvRole: int = Qt.UserRole + 1 #pyright: ignore
+    linkRole: int = Qt.UserRole + 2 #pyright: ignore
 
     def __init__(self,filmGenerator:Optional[Iterator[Film]] = None,batch: int = 10,maxFilms: int = -1, parent=None,):
         super().__init__(parent)
@@ -21,11 +24,9 @@ class QFilmListModel(QAbstractListModel):
         self.batch: int = max(1,batch)
         self.maxFilms: int = maxFilms
         self.iconSize:QSize = QSize(150,int(150 * 1.5))
-        self.films: List[Film] = [Film("This is for testing only","link",True,"link",extra="2018 . 101min. movie") for x in range(20)]
-        [setattr(film, 'poster_icon',QIcon("hayai/assets/imgs/creed3.jpg")
- ) for film in self.films]
-        #self.films += [Film("This is for testing only","link",True,"link")]
-        #self.films: List[Film] = []
+        #self.films: List[Film] = [Film("This is for testing only","link",True,"link",extra="2018 . 101min. movie") for x in range(20)]
+        #[setattr(film, 'poster_icon',QIcon("hayai/assets/imgs/creed3.jpg")) for film in self.films]
+        self.films: List[Film] = []
         self.noMoreData: bool = False
         self.threadPool: QThreadPool = QThreadPool()
         self.threadPool.setMaxThreadCount(1)
@@ -56,7 +57,13 @@ class QFilmListModel(QAbstractListModel):
         if index.row() >= len(self.films) or index.row() < 0:
             return None
 
-        if role == Qt.UserRole: #pyright: ignore
+        if role == QFilmListModel.isTvRole : #pyright: ignore
+            return self.films[index.row()].is_tv
+
+        if role == QFilmListModel.linkRole : #pyright: ignore
+            return self.films[index.row()].link
+
+        if role == QFilmListModel.extraRole : #pyright: ignore
             return self.films[index.row()].extra
 
         if role == Qt.DisplayRole: #pyright: ignore

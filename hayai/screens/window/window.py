@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QDockWidget,
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QModelIndex, Qt
 from provider_parsers import Sol
 
 from hayai.widgets import QSidebar
@@ -32,7 +32,7 @@ class QWindow(QMainWindow):
 
         self.sidebar: QSidebar = QSidebar(Sol)
 
-        self.filmDetail: QFilmDetail = QFilmDetail()
+        self.filmDetail: QFilmDetail = QFilmDetail(Sol)
 
         self.category: QCategory = QCategory(Sol)
 
@@ -56,6 +56,7 @@ class QWindow(QMainWindow):
         self.sidebar.homeButtonToggle.connect(self.loadHome)
         self.sidebar.lineEditFocusGained.connect(self.loadSearch)
         self.sidebar.lineEditTextChanged.connect(self.search.search)
+        self.home.filmClicked.connect(self.loadFilmDetail)
 
         
 
@@ -66,9 +67,8 @@ class QWindow(QMainWindow):
         self.mainFrameLayout.addWidget(self.category)
         self.mainFrameLayout.addWidget(self.filmDetail)
         self.mainFrameLayout.setContentsMargins(5,0,0,0)
-        #self.mainFrameLayout.setSpacing(0)
-        self.mainFrameLayout.setCurrentIndex(3)
-        #self.mainFrameLayout.setCurrentIndex(0)
+        #self.mainFrameLayout.setCurrentIndex(3)
+        self.mainFrameLayout.setCurrentIndex(0)
         mainFrame.setLayout(self.mainFrameLayout)
 
         self.setCentralWidget(mainFrame)
@@ -92,6 +92,10 @@ class QWindow(QMainWindow):
     def loadSearch(self):
         self.header.setCurrentScreenTitle("Search")
         self.mainFrameLayout.setCurrentIndex(2)
+
+    def loadFilmDetail(self,index: QModelIndex):
+        self.mainFrameLayout.setCurrentIndex(3)
+        self.filmDetail.updateFilmDetail(index=index)
 
     def loadStylesheet(self):
         with open("hayai/screens/window/window.qss","r") as f:

@@ -31,6 +31,7 @@ class QResizableIconListView(QListView):
         self.setObjectName("QResizableIconListView")
         self.currentIconSize: QSize = self.iconSize()
         self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.resize(QSize(0,0))
 
     def setMinimumIconSize(self,width: int, height: int):
         self.minimumIconSize.setWidth(width)
@@ -76,21 +77,20 @@ class QResizableIconListView(QListView):
             viewport_width = self.viewport().width()
             frameWidth = self.frameWidth()
             model = self.model()
-            if  model.rowCount() > 1 :
-                item_spacing = self.spacing() 
-                available_width = viewport_width - (frameWidth * 2) - (item_spacing * 2)
-                max_items_per_row = available_width // self.minimumIconSize.width() 
-                if max_items_per_row > 1:
-                    iconWidth = (available_width // max_items_per_row ) - ( item_spacing) - (frameWidth * 4) 
-                else:
-                    iconWidth = self.minimumIconSize.width() - (item_spacing ) - (frameWidth * 4) 
-                iconHeight = int(iconWidth * self.iconSizeRatio)
-                iconSize = QSize(iconWidth,iconHeight) 
-                self.setIconSize(iconSize)
-                #self.updateGeometry()
+            item_spacing = self.spacing() 
+            available_width = viewport_width - (frameWidth * 2) - (item_spacing * 2)
+            max_items_per_row = available_width // self.minimumIconSize.width() 
+            if max_items_per_row > 1:
+                iconWidth = (available_width // max_items_per_row ) - ( item_spacing) - (frameWidth * 4) 
+            else:
+                iconWidth = self.minimumIconSize.width() - (item_spacing ) - (frameWidth * 4) 
+            iconHeight = int(iconWidth * self.iconSizeRatio)
+            iconSize = QSize(iconWidth,iconHeight) 
+            self.setIconSize(iconSize)
+
             if self.showAll:
                 rowHeight = self.sizeHintForRow(0)
-                colWidth = self.sizeHintForColumn(0)
+                colWidth = max(self.sizeHintForColumn(0),1)
                 numCols: int = self.width() // colWidth
                 numCols = max(1,numCols)
                 rows: int = math.ceil(model.rowCount()/ numCols)

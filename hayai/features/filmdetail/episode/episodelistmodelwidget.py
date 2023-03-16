@@ -26,6 +26,7 @@ class EpisodeListModel(QAbstractListModel):
 
         if role == Qt.DisplayRole: #pyright: ignore
             return self.episodes[index.row()].episode_number + "." + self.episodes[index.row()].title
+            #return self.episodes[index.row()].title
 
         if role == Qt.DecorationRole: #pyright: ignore
             return self.defaultThumbnail
