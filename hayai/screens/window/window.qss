@@ -196,7 +196,7 @@ QListView::item:selected{
   background-color: inherit;
 }
 
-#QHeader QLabel {
+#QHeader QLabel , #QHeader QPushButton{
   color: #7c859E;
   border: 0px;
   font-size: 18px;

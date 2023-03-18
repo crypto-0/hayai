@@ -1,9 +1,7 @@
 from typing import Dict, Optional
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QColor, QPalette
 from .nav import QNav
 from .providerlist import QProviderList
-from .logo import QLogo
 from .searchbar import QSearchbar
 from provider_parsers import ProviderParser
 from PyQt5.QtWidgets import (
@@ -11,6 +9,7 @@ from PyQt5.QtWidgets import (
     QButtonGroup,
     QFrame,
     QHBoxLayout,
+    QSizePolicy,
     QVBoxLayout,
     QWidget
 )
@@ -36,11 +35,11 @@ class QSidebar(QFrame):
         rightFrame.setObjectName("right")
 
         topFrame: QFrame = QFrame()
+        topFrame.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.Fixed)
         topFrame.setObjectName("top")
 
-        logo: QLogo = QLogo()
+        #logo: QLogo = QLogo()
         searchbar: QSearchbar = QSearchbar()
-
         
         providerNav: QProviderList = QProviderList(["sol","zoro","asian"])
         menuNav: QNav = QNav("menu",["home","movies","tv shows"])
@@ -79,10 +78,11 @@ class QSidebar(QFrame):
         searchbar.lineEditTextChanged.connect(self.lineEditTextChanged)
 
         topFrameLayout: QVBoxLayout = QVBoxLayout()
-        topFrameLayout.addWidget(logo)
+        #topFrameLayout.addWidget(logo)
         topFrameLayout.addWidget(searchbar)
-        topFrameLayout.setContentsMargins(0,10,10,20)
+        topFrameLayout.setContentsMargins(0,0,10,20)
         topFrameLayout.setSpacing(20)
+        topFrameLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         topFrame.setLayout(topFrameLayout)
 
         leftFrameLayout: QVBoxLayout = QVBoxLayout()

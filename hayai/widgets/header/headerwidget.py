@@ -21,8 +21,8 @@ class QHeader(QFrame):
         self.headerLayout = QHBoxLayout()
         self.headerLayout.addWidget(self.currentScreenLabel)
         self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.headerLayout.setContentsMargins(0,0,5,0)
-        self.headerLayout.setSpacing(5)
+        self.headerLayout.setContentsMargins(5,0,5,0)
+        self.headerLayout.setSpacing(10)
         self.setLayout(self.headerLayout)
 
         self.setObjectName("QHeader")

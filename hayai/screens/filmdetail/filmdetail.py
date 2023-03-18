@@ -1,6 +1,6 @@
 from typing import List, Optional, Type
 from PyQt5.QtCore import QModelIndex, QSize, Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 
 from PyQt5.QtWidgets import QComboBox,  QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 from hayai.features.filmdetail import QOverview
@@ -10,6 +10,7 @@ from hayai.widgets.film.filmdelegate.filmdelegatewidget import QFilmDelegate
 from hayai.widgets.resizableiconlistview import QResizableIconListView
 from hayai.widgets.film import QFilmListModel
 from hayai.widgets.film import QFilmRow
+from hayai.concurrency import Worker
 from provider_parsers import Season, Episode, ProviderParser,FilmInfo
 
 
@@ -77,29 +78,43 @@ class QFilmDetail(QFrame):
         self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
         self.setObjectName("QFilmDetail")
 
+    def __fetchFilmDetails(self,link: str,progress_callback = None):
+        filmInfo: FilmInfo = self.providerParser.parse_info(link)
+        id: str = link.rsplit("-",1)[-1]
+        seasons: List[Season] = self.providerParser.parse_seasons(id)
+
+
     def updateFilmDetail(self,index: QModelIndex):
         link: str = index.data(QFilmListModel.linkRole)
         isTv: bool = index.data(QFilmListModel.isTvRole)
+        #posterIcon: QIcon = index.data(Qt.DecorationRole) #pyright: ignore
         posterIcon: QIcon = index.data(Qt.DecorationRole) #pyright: ignore
         filmInfo: FilmInfo = self.providerParser.parse_info(link)
-        self.overview.updateOverview(posterIcon=posterIcon,title=filmInfo.title,description=filmInfo.description,genre=filmInfo.genre,country=filmInfo.country,duration=filmInfo.duration + "min")
+        if isTv:
+            extra: str = "TV"
+        else:
+            extra: str = "Movie"
+        extra = f"{extra} ({filmInfo.release}) "
         if isTv:
             id: str = link.rsplit("-",1)[-1]
             seasons: List[Season] = self.providerParser.parse_seasons(id)
+            extra += f"{len(seasons)} Seasons"
             if len(seasons) > 0:
                 self.seasonListModel.loadSeasons(seasons=seasons)
                 seasonIndex: QModelIndex = self.seasonListModel.index(0,0,QModelIndex())
-                self.__updateEpisodes(seasonIndex)
+                #self.__updateEpisodes(seasonIndex)
             self.seasonComboBox.setVisible(True)
             self.episodeView.setVisible(True)
         else:
             self.seasonComboBox.setVisible(False)
             self.episodeView.setVisible(False)
+        self.overview.updateOverview(posterIcon=posterIcon,title=filmInfo.title,description=filmInfo.description,genre=filmInfo.genre,country=filmInfo.country,duration=filmInfo.duration + "min",extra=extra)
         self.recommendRow.setFilmGenerator(iter(filmInfo.recommendation))
 
     def __updateEpisodes(self,index: int):
         id: str = self.seasonComboBox.currentData(SeasonListModel.idRole)
         episodes: List[Episode] = self.providerParser.parse_episodes(id)
         self.episodeModel.loadEpisodes(episodes=episodes)
+        self.episodeView.updateGeometries()
 
 

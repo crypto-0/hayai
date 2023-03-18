@@ -1,35 +1,35 @@
-from cachetools import TTLCache
 from collections.abc import Iterator
-from typing import List, Optional
-from concurrent.futures import Future, ThreadPoolExecutor
-from PyQt5.QtCore import  QSize, QThreadPool, Qt
+from typing import List, Optional, Tuple
+from PyQt5.QtCore import QThreadPool, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 from PyQt5.QtCore import QModelIndex
-from PyQt5.QtGui import QIcon, QPixmap 
+from PyQt5.QtGui import QColor, QIcon, QImage, QPixmap 
 from provider_parsers import Film
 from hayai.concurrency import Worker
 import requests
 
 class QFilmListModel(QAbstractListModel):
     session = requests.session()
-    cache = TTLCache(maxsize=100,ttl=180)
     extraRole: int = Qt.UserRole  #pyright: ignore
     isTvRole: int = Qt.UserRole + 1 #pyright: ignore
     linkRole: int = Qt.UserRole + 2 #pyright: ignore
+    cancel: pyqtSignal = pyqtSignal()
 
-    def __init__(self,filmGenerator:Optional[Iterator[Film]] = None,batch: int = 10,maxFilms: int = -1, parent=None,):
+    def __init__(self,filmGenerator:Optional[Iterator[Film]] = None,batch: int = 30,maxFilms: int = -1, parent=None,):
         super().__init__(parent)
-
+        self.placeHolderPixmap: QPixmap = QPixmap(600,int(600 * 1.5))
+        self.placeHolderPixmap.fill(QColor("#7c859E"))
+        self.loadingData: bool = False
         self.filmGenerator: Optional[Iterator[Film]] = filmGenerator
         self.batch: int = max(1,batch)
         self.maxFilms: int = maxFilms
-        self.iconSize:QSize = QSize(150,int(150 * 1.5))
-        #self.films: List[Film] = [Film("This is for testing only","link",True,"link",extra="2018 . 101min. movie") for x in range(20)]
-        #[setattr(film, 'poster_icon',QIcon("hayai/assets/imgs/creed3.jpg")) for film in self.films]
         self.films: List[Film] = []
+        self.filmBuffer: List[Film] = []
         self.noMoreData: bool = False
-        self.threadPool: QThreadPool = QThreadPool()
-        self.threadPool.setMaxThreadCount(1)
+        self.filmGeneratorthreadPool: QThreadPool = QThreadPool(self)
+        self.filmGeneratorthreadPool.setMaxThreadCount(2)
+        self.imagesThreadPool: QThreadPool = QThreadPool(self)
+        self.imagesThreadPool.setMaxThreadCount(4)
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return len(self.films)
@@ -37,10 +37,18 @@ class QFilmListModel(QAbstractListModel):
     def setData(self, index, value, role=Qt.EditRole) -> bool: #pyright: ignore
         if value is None:
             return False
+        if not index.isValid():
+            return False
+        
+        row: int = index.row()
+
+        if row >= len(self.films) or row < 0:
+            return False
+
         if role == Qt.DecorationRole: #pyright: ignore
             setattr(self.films[index.row()], 'poster_icon', value)
             self.films[index.row()].poster_data = None
-            self.dataChanged.emit(index, index, [role])
+            self.dataChanged.emit(index,index, [role])
             return True
 
         return False
@@ -53,26 +61,36 @@ class QFilmListModel(QAbstractListModel):
     def data(self, index, role=Qt.DisplayRole) -> object: #pyright: ignore
         if not index.isValid():
             return None
+        row: int = index.row()
 
-        if index.row() >= len(self.films) or index.row() < 0:
+        if row >= len(self.films) or row < 0:
             return None
 
         if role == QFilmListModel.isTvRole : #pyright: ignore
-            return self.films[index.row()].is_tv
+            return self.films[row].is_tv
 
         if role == QFilmListModel.linkRole : #pyright: ignore
-            return self.films[index.row()].link
+            return self.films[row].link
 
         if role == QFilmListModel.extraRole : #pyright: ignore
-            return self.films[index.row()].extra
+            return self.films[row].extra
 
         if role == Qt.DisplayRole: #pyright: ignore
-            return self.films[index.row()].title
+            return self.films[row].title
 
         if role == Qt.DecorationRole: #pyright: ignore
             #pixmap: QPixmap = QPixmap("hayai/assets/imgs/jujutsu.jpg")
-            if hasattr(self.films[index.row()],"poster_icon"):
-                return self.films[index.row()].poster_icon #pyright: ignore
+            if hasattr(self.films[row],"poster_icon"):
+                return self.films[row].poster_icon #pyright: ignore
+            else:
+                worker: Worker = Worker(self.__fetchFilmImage,self.films[row].poster_url,index)
+                worker.signals.result.connect(lambda x: self.__setFilmIconFromImage(*x))
+                self.cancel.connect(worker.cancelResult)
+                worker.setAutoDelete(True)
+                self.destroyed.connect(worker.exit)
+                self.imagesThreadPool.start(worker)
+
+            return QIcon(self.placeHolderPixmap)
             #pixmap: QPixmap = QPixmap("hayai/assets/imgs/creed3.jpg")
             #pixmap: QPixmap = QPixmap("hayai/assets/imgs/road-back-home.png")
             #pixmap = pixmap.scaledToWidth(100)
@@ -83,82 +101,82 @@ class QFilmListModel(QAbstractListModel):
 
         return None
 
-    def canFetchMore(self, index) -> bool:
+    def canFetchMore(self, index: QModelIndex) -> bool:
         if self.filmGenerator == None:
             return False
         if self.maxFilms >= 0  and self.maxFilms  == len(self.films):
             return False
 
-        if self.noMoreData:
+        if self.noMoreData or self.loadingData:
             return False
         return True
 
-    def fetchMore(self, index) -> None:
+    def fetchMore(self, index: QModelIndex) -> None:
         if self.filmGenerator == None:
             return
+        if self.loadingData:
+            pass
         itemsToFetch: int = self.batch 
         if self.maxFilms >=0:
             itemsToFetch = min(itemsToFetch,self.maxFilms - len(self.films))
-        worker: Worker = Worker(self.__fetchFilms,itemsToFetch)
-        worker.signals.result.connect(self.appendRows)
-        self.destroyed.connect(worker.exit)
-        self.threadPool.start(worker)
+        worker: Worker = Worker(self.__fetchFilms,self.filmGenerator,itemsToFetch)
+        worker.signals.result.connect(self.__appendFilms)
+        worker.setAutoDelete(True)
+        self.loadingData = True
+        self.filmGeneratorthreadPool.start(worker)
 
-    def __fetchFilms(self,maxFilms: int,progress_callback = None) -> List[Film]:
-        if self.noMoreData or self.filmGenerator is None:
-            return []
-        buffer: List[Film] = []
-        futures: List[Future] = []
-        with ThreadPoolExecutor(3) as executor:
+    def __fetchFilms(self,filmGenerator: Iterator[Film],maxFilms: int,progress_callback = None) -> List[Film]:
+        films: List[Film] = []
+        try:
             for a in range(maxFilms):
-                try:
-                    film: Film = next(self.filmGenerator)
-                    cachedIcon: Optional[QIcon] = QFilmListModel.cache.get(film.poster_url)
-                    if cachedIcon is not None:
-                        setattr(film, 'poster_icon',QIcon(cachedIcon) )
-                    else:
-                        future = executor.submit(self.loadIcon,film)
-                        futures.append(future)
-                    buffer.append(film)
-                except StopIteration:
-                    self.noMoreData = True
-                    break
-        return buffer
+                film: Film = next(filmGenerator)
+                films.append(film)
 
-    def setFilmGenerator(self, filmGenerator: Optional[Iterator[Film]]) -> None:
-        self.filmGenerator = filmGenerator
-        self.beginResetModel()
-        self.films.clear()
-        self.noMoreData = False
-        self.endResetModel()
+        except StopIteration:
+            self.noMoreData = True
 
+        self.loadingData = False
+        return films
 
-    def appendRows(self,films: List[Film]) -> None:
-        if films is not None and len(films) > 0:
+    def __appendFilms(self,films):
+        if len(films) > 0:
             startRow: int = len(self.films)
             endRow: int = startRow + len(films) -1
             self.beginInsertRows(QModelIndex(), startRow,endRow)
             self.films.extend(films)
             self.endInsertRows()
 
-    def clear(self):
-        self.filmGenerator = None
-        self.beginResetModel()
-        self.films.clear()
-        self.noMoreData = False
-        self.endResetModel()
-
-    def loadIcon(self,film: Film):
+    def __fetchFilmImage(self,url: str,index: QModelIndex,progress_callback = None):
         headers =  {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/75.0.3770.142 Safari/537.36',
                 'X-Requested-With': 'XMLHttpRequest'
                 }
-        pixmap = QPixmap()
-        r = requests.Request = QFilmListModel.session.get(film.poster_url,headers=headers) 
-        pixmap.loadFromData(r.content)
-        icon: QIcon = QIcon(pixmap)
-        setattr(film, 'poster_icon',icon)
-        QFilmListModel.cache[film.poster_url] = icon
+        image: QImage = QImage()
+        r = requests.Request = QFilmListModel.session.get(url,headers=headers) 
+        image.loadFromData(r.content)
+        return (image,index)
 
-    def deleteLator(self):
-        self.threadPool.clear()
+    def __setFilmIconFromImage(self,image: QImage,index: QModelIndex):
+        pixmap: QPixmap = QPixmap.fromImage(image)
+        icon: QIcon = QIcon(pixmap)
+        self.setData(index,icon,Qt.DecorationRole) #pyright: ignore
+
+    def setFilmGenerator(self, filmGenerator: Optional[Iterator[Film]]) -> None:
+        self.beginResetModel()
+        self.filmGenerator = filmGenerator
+        self.films.clear()
+        self.imagesThreadPool.clear()
+        self.filmGeneratorthreadPool.clear()
+        self.noMoreData = False
+        self.cancel.emit()
+        self.endResetModel()
+
+    def clear(self):
+        self.cancel.emit()
+        self.beginResetModel()
+        self.filmGenerator = None
+        self.films.clear()
+        self.noMoreData = False
+        self.endResetModel()
+
+

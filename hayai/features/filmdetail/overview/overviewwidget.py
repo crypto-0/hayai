@@ -57,11 +57,11 @@ class QOverview(QFrame):
         #self.setFixedHeight(int(200 * 1.5))
         self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.Fixed)
 
-    def updateOverview(self,posterIcon: QIcon, title: str, description: str,genre: str, country: str, duration: str):
+    def updateOverview(self,posterIcon: QIcon, title: str, description: str,genre: str, country: str, duration: str,extra: str):
         size: QSize = posterIcon.actualSize(QSize(1920,1080))
         pixmap: QPixmap = posterIcon.pixmap(size)
         self.poster.setPixmap(pixmap)
-        self.description.updateDescription(title=title,description=description)
+        self.description.updateDescription(title=title,description=description,extra=extra)
         #self.detail.updateDetail("Drama Action","korea","50 min")
         self.detail.updateDetail(genres=genre,country=country,runtime=duration)
 

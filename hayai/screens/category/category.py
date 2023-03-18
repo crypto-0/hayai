@@ -2,7 +2,7 @@ from PyQt5.QtCore import QModelIndex, Qt, pyqtSignal
 from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout
 from PyQt5.QtWidgets import QWidget
 from typing import Optional, Type
-from hayai.widgets.film import QFilmListModel
+from hayai.widgets.film import QFilmListModel, QFilmDelegate
 from hayai.widgets import QResizableIconListView
 from provider_parsers import ProviderParser
 
@@ -19,7 +19,8 @@ class QCategory(QFrame):
         self.categoryView: QResizableIconListView = QResizableIconListView()
         self.categoryView.setWrapping(True)
         self.categoryView.setModel(self.categoryModel)
-        self.categoryView.setBatchSize(10)
+        self.categoryView.setItemDelegate(QFilmDelegate())
+        self.categoryView.setBatchSize(50)
         self.categoryView.horizontalScrollBar().setEnabled(False)
 
         self.categoryView.clicked.connect(self.filmClicked)

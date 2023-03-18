@@ -20,9 +20,9 @@ class Worker(QRunnable):
         self.args = args
         self.kwargs = kwargs
         self.signals = WorkerSignals()
-        self.signals.destroyed.connect(self.exit)
-
+        #self.signals.destroyed.connect(self.exit)
         self.kwargs['progress_callback'] = self.signals.progress
+        self.cancel = False
 
     @pyqtSlot()
     def run(self):
@@ -33,9 +33,14 @@ class Worker(QRunnable):
             exctype, value = sys.exc_info()[:2]
             self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
-            self.signals.result.emit(result)
+            if not self.cancel:
+                self.signals.result.emit(result)
         finally:
             self.signals.finished.emit()
+            self.signals.deleteLater()
 
     def exit(self,member: str):
         sys.exit()
+
+    def cancelResult(self):
+        self.cancel = True

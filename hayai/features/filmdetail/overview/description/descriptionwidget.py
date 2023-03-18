@@ -34,10 +34,11 @@ class QDescription(QFrame):
         descriptionLayout.setSpacing(20)
         self.setLayout(descriptionLayout)
 
-    def updateDescription(self,title: str,description: str):
+    def updateDescription(self,title: str,description: str, extra: str):
         self.titleLabel.setText(title)
         #description = self.descriptionLabel.fontMetrics().elidedText(description,Qt.ElideRight,self.descriptionLabel.width()) #pyright: ignore
         self.descriptionLabel.setText(description)
+        self.extraDetailLabel.setText(extra)
 
 
 
