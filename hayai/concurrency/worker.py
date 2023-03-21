@@ -21,7 +21,7 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.signals = WorkerSignals()
         #self.signals.destroyed.connect(self.exit)
-        self.kwargs['progress_callback'] = self.signals.progress
+        self.kwargs['progressSignal'] = self.signals.progress
         self.cancel = False
 
     @pyqtSlot()

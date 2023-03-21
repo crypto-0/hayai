@@ -115,6 +115,7 @@ class QFilmDetail(QFrame):
         id: str = self.seasonComboBox.currentData(SeasonListModel.idRole)
         episodes: List[Episode] = self.providerParser.parse_episodes(id)
         self.episodeModel.loadEpisodes(episodes=episodes)
-        self.episodeView.updateGeometries()
+        #self.episodeView.updateGeometries()
+        self.episodeView.resize(self.size())
 
 

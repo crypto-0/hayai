@@ -4,6 +4,9 @@ import sys
 
 def __hayai__():
     app = QApplication(sys.argv)
+    import locale
+    locale.setlocale(locale.LC_NUMERIC, 'C')
+
     window = QWindow()
     window.show()
     sys.exit(app.exec_())

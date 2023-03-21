@@ -1,0 +1,1 @@
+from .filmgeneratorworker import QFilmGeneratorWorker

@@ -38,6 +38,7 @@ class QWindow(QMainWindow):
 
         mainFrame: QFrame = QFrame()
         mainFrame.setObjectName("QMainFrame")
+        #self.player: QPlayer = QPlayer(mainFrame.winId())
 
         sidebarDock: QDockWidget = QDockWidget()
         sidebarDock.setWidget(self.sidebar)
@@ -64,12 +65,15 @@ class QWindow(QMainWindow):
         self.mainFrameLayout.addWidget(self.category)
         self.mainFrameLayout.addWidget(self.search)
         self.mainFrameLayout.addWidget(self.filmDetail)
+        #self.mainFrameLayout.addWidget(self.player)
         self.mainFrameLayout.setContentsMargins(5,0,0,0)
         #self.mainFrameLayout.setCurrentIndex(3)
-        self.mainFrameLayout.setCurrentIndex(0)
+        self.mainFrameLayout.setCurrentIndex(4)
+        #self.mainFrameLayout.setCurrentIndex(4)
         mainFrame.setLayout(self.mainFrameLayout)
 
         self.setCentralWidget(mainFrame)
+        #self.setCentralWidget(self.player)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,sidebarDock)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,headerDock)
         self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
@@ -94,6 +98,7 @@ class QWindow(QMainWindow):
     def loadFilmDetail(self,index: QModelIndex):
         self.mainFrameLayout.setCurrentIndex(3)
         self.filmDetail.updateFilmDetail(index=index)
+        #self.player.stop()
 
     def loadStylesheet(self):
         with open("hayai/screens/window/window.qss","r") as f:

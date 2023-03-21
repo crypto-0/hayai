@@ -1,11 +1,12 @@
 from collections.abc import Iterator
 from typing import List, Optional, Tuple
-from PyQt5.QtCore import QThreadPool, Qt, pyqtSignal
+from PyQt5.QtCore import QCoreApplication, QThread, QThreadPool, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtGui import QColor, QIcon, QImage, QPixmap 
 from provider_parsers import Film
 from hayai.concurrency import Worker
+from .workers import QFilmGeneratorWorker
 import requests
 
 class QFilmListModel(QAbstractListModel):
@@ -13,23 +14,27 @@ class QFilmListModel(QAbstractListModel):
     extraRole: int = Qt.UserRole  #pyright: ignore
     isTvRole: int = Qt.UserRole + 1 #pyright: ignore
     linkRole: int = Qt.UserRole + 2 #pyright: ignore
-    cancel: pyqtSignal = pyqtSignal()
+    generatorChange: pyqtSignal = pyqtSignal(object)
+    fetchFilms: pyqtSignal = pyqtSignal()
 
     def __init__(self,filmGenerator:Optional[Iterator[Film]] = None,batch: int = 30,maxFilms: int = -1, parent=None,):
         super().__init__(parent)
         self.placeHolderPixmap: QPixmap = QPixmap(600,int(600 * 1.5))
         self.placeHolderPixmap.fill(QColor("#7c859E"))
-        self.loadingData: bool = False
-        self.filmGenerator: Optional[Iterator[Film]] = filmGenerator
-        self.batch: int = max(1,batch)
         self.maxFilms: int = maxFilms
         self.films: List[Film] = []
-        self.filmBuffer: List[Film] = []
-        self.noMoreData: bool = False
-        self.filmGeneratorthreadPool: QThreadPool = QThreadPool(self)
-        self.filmGeneratorthreadPool.setMaxThreadCount(2)
         self.imagesThreadPool: QThreadPool = QThreadPool(self)
         self.imagesThreadPool.setMaxThreadCount(4)
+        self.filmGeneratorWorker: QFilmGeneratorWorker = QFilmGeneratorWorker(filmGenerator,batch)
+        self.filmGeneratorThread: QThread = QThread(parent=parent)
+        self.filmGeneratorWorker.moveToThread(self.filmGeneratorThread)
+        self.filmGeneratorThread.finished.connect(self.filmGeneratorWorker.deleteLater)
+        self.fetchFilms.connect(self.filmGeneratorWorker.fetchFilms) #pyright: ignore
+        self.generatorChange.connect(self.filmGeneratorWorker.setGenerator) #pyright: ignore
+        self.filmGeneratorWorker.result.connect(self.__appendFilms)
+        self.filmGeneratorThread.start()
+        #self.generatorChange.connect(self.filmGeneratorWorker.setGenerator)
+
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return len(self.films)
@@ -85,7 +90,6 @@ class QFilmListModel(QAbstractListModel):
             else:
                 worker: Worker = Worker(self.__fetchFilmImage,self.films[row].poster_url,index)
                 worker.signals.result.connect(lambda x: self.__setFilmIconFromImage(*x))
-                self.cancel.connect(worker.cancelResult)
                 worker.setAutoDelete(True)
                 self.destroyed.connect(worker.exit)
                 self.imagesThreadPool.start(worker)
@@ -102,41 +106,13 @@ class QFilmListModel(QAbstractListModel):
         return None
 
     def canFetchMore(self, index: QModelIndex) -> bool:
-        if self.filmGenerator == None:
-            return False
         if self.maxFilms >= 0  and self.maxFilms  == len(self.films):
             return False
+        return self.filmGeneratorWorker.hasMoreFilms()
 
-        if self.noMoreData or self.loadingData:
-            return False
-        return True
 
     def fetchMore(self, index: QModelIndex) -> None:
-        if self.filmGenerator == None:
-            return
-        if self.loadingData:
-            pass
-        itemsToFetch: int = self.batch 
-        if self.maxFilms >=0:
-            itemsToFetch = min(itemsToFetch,self.maxFilms - len(self.films))
-        worker: Worker = Worker(self.__fetchFilms,self.filmGenerator,itemsToFetch)
-        worker.signals.result.connect(self.__appendFilms)
-        worker.setAutoDelete(True)
-        self.loadingData = True
-        self.filmGeneratorthreadPool.start(worker)
-
-    def __fetchFilms(self,filmGenerator: Iterator[Film],maxFilms: int,progress_callback = None) -> List[Film]:
-        films: List[Film] = []
-        try:
-            for a in range(maxFilms):
-                film: Film = next(filmGenerator)
-                films.append(film)
-
-        except StopIteration:
-            self.noMoreData = True
-
-        self.loadingData = False
-        return films
+        self.fetchFilms.emit()
 
     def __appendFilms(self,films):
         if len(films) > 0:
@@ -146,7 +122,7 @@ class QFilmListModel(QAbstractListModel):
             self.films.extend(films)
             self.endInsertRows()
 
-    def __fetchFilmImage(self,url: str,index: QModelIndex,progress_callback = None):
+    def __fetchFilmImage(self,url: str,index: QModelIndex,progressSignal = None):
         headers =  {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/75.0.3770.142 Safari/537.36',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -163,20 +139,23 @@ class QFilmListModel(QAbstractListModel):
 
     def setFilmGenerator(self, filmGenerator: Optional[Iterator[Film]]) -> None:
         self.beginResetModel()
-        self.filmGenerator = filmGenerator
+        self.filmGeneratorWorker.cancel()
+        self.generatorChange.emit(filmGenerator)
         self.films.clear()
         self.imagesThreadPool.clear()
-        self.filmGeneratorthreadPool.clear()
-        self.noMoreData = False
-        self.cancel.emit()
         self.endResetModel()
 
     def clear(self):
-        self.cancel.emit()
         self.beginResetModel()
-        self.filmGenerator = None
+        self.filmGeneratorWorker.result.disconnect()
         self.films.clear()
-        self.noMoreData = False
+        self.filmGeneratorWorker.result.connect(self.__appendFilms)
         self.endResetModel()
 
+    def __del__(self):
+        self.cleanUp()
+
+    def cleanUp(self):
+        self.filmGeneratorThread.quit()
+        self.filmGeneratorThread.wait()
 
