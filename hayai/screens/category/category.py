@@ -28,12 +28,13 @@ class QCategory(QFrame):
 
         categoryLayout: QHBoxLayout = QHBoxLayout()
         categoryLayout.addWidget(self.categoryView)
-        categoryLayout.setContentsMargins(5,10,0,0)
+        categoryLayout.setContentsMargins(0,0,0,0)
         categoryLayout.setSpacing(0)
         self.setLayout(categoryLayout)
 
         self.setObjectName("QCategory")
 
     def load(self,categoryButton: QAbstractButton):
-        self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
+        #self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
+        pass
 

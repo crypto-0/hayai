@@ -2,7 +2,7 @@ import math
 from typing import Optional
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import  QEasingCurve, QEvent, QPropertyAnimation, QSize
-from PyQt5.QtWidgets import  QListView, QSizePolicy, QWidget
+from PyQt5.QtWidgets import  QListView, QWidget
 
 class QResizableIconListView(QListView):
 

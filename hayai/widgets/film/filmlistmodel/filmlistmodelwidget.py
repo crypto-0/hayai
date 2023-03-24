@@ -1,6 +1,6 @@
 from collections.abc import Iterator
-from typing import List, Optional, Tuple
-from PyQt5.QtCore import QCoreApplication, QThread, QThreadPool, Qt, pyqtSignal
+from typing import List, Optional 
+from PyQt5.QtCore import  QThread, QThreadPool, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtGui import QColor, QIcon, QImage, QPixmap 
@@ -95,12 +95,8 @@ class QFilmListModel(QAbstractListModel):
                 self.imagesThreadPool.start(worker)
 
             return QIcon(self.placeHolderPixmap)
-            #pixmap: QPixmap = QPixmap("hayai/assets/imgs/creed3.jpg")
-            #pixmap: QPixmap = QPixmap("hayai/assets/imgs/road-back-home.png")
-            #pixmap = pixmap.scaledToWidth(100)
-            #pixmap = pixmap.scaled(self.iconSize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
             return None
-            #return pixmap
 
 
         return None

@@ -14,6 +14,7 @@ from hayai.widgets.film import QFilmRow
 class QHome(QFrame):
 
     filmClicked: pyqtSignal = pyqtSignal(QModelIndex)
+    scrollbarValueChanged: pyqtSignal = pyqtSignal(int)
     def __init__(self, providerParser: Type[ProviderParser] , parent: Optional[QWidget] = None ) -> None:
         super().__init__(parent=parent)
 
@@ -37,17 +38,17 @@ class QHome(QFrame):
         scrollArea.setWidgetResizable(True)
         scrollArea.setContentsMargins(0,0,0,0)
 
-
+        scrollArea.verticalScrollBar().valueChanged.connect(self.scrollbarValueChanged)
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         for category in providerParser.home_categories:
             filmRow: QFilmRow = QFilmRow(category)
-            filmRow.setFilmGenerator(providerParser.parse_category(category=category))
+            #filmRow.setFilmGenerator(providerParser.parse_category(category=category))
             filmRow.filmClicked.connect(self.filmClicked)
             scrollAreaFrameLayout.addWidget(filmRow)
 
         scrollAreaFrameLayout.setContentsMargins(0,0,0,0)
         scrollAreaFrameLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        scrollAreaFrameLayout.setSpacing(5)
+        scrollAreaFrameLayout.setSpacing(0)
         scrollAreaFrame.setLayout(scrollAreaFrameLayout)
 
         homeLayout: QHBoxLayout = QHBoxLayout()

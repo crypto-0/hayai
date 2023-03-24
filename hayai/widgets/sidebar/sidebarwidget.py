@@ -2,7 +2,6 @@ from typing import Dict, Optional
 from PyQt5.QtCore import Qt, pyqtSignal
 from .nav import QNav
 from .providerlist import QProviderList
-from .searchbar import QSearchbar
 from provider_parsers import ProviderParser
 from PyQt5.QtWidgets import (
     QAbstractButton,
@@ -21,8 +20,7 @@ class QSidebar(QFrame):
     generalButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
     navButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
     homeButtonToggle: pyqtSignal = pyqtSignal(QAbstractButton)
-    lineEditTextChanged: pyqtSignal = pyqtSignal(str)
-    lineEditFocusGained: pyqtSignal = pyqtSignal()
+    searchButtonToggle: pyqtSignal = pyqtSignal(QAbstractButton)
 
     def __init__(self,provider: type[ProviderParser],parent: Optional[QWidget] = None):
         super().__init__()
@@ -39,10 +37,9 @@ class QSidebar(QFrame):
         topFrame.setObjectName("top")
 
         #logo: QLogo = QLogo()
-        searchbar: QSearchbar = QSearchbar()
         
         providerNav: QProviderList = QProviderList(["sol","zoro","asian"])
-        menuNav: QNav = QNav("menu",["home","movies","tv shows"])
+        menuNav: QNav = QNav("menu",["home","search","movies","tv shows"])
         librayNav: QNav = QNav("library",["downloads"])
         categoryNav: QNav = QNav("category",provider.categories)
         generalNav: QNav = QNav("general",["setting"])
@@ -55,6 +52,8 @@ class QSidebar(QFrame):
         for idx,button in enumerate(menuNav.getNavButtons()):
             if idx == 0:
                 self.buttonSignalMapping[id] = self.homeButtonToggle
+            elif idx == 1:
+                self.buttonSignalMapping[id] = self.searchButtonToggle
             else:
                 self.buttonSignalMapping[id] = self.menuButtonToggled
             self.buttonGroup.addButton(button,id)
@@ -73,13 +72,9 @@ class QSidebar(QFrame):
             id +=1
 
         self.buttonGroup.buttonToggled.connect(self.buttonToggled)
-        searchbar.lineEditFocusGained.connect(self.lineEditFocusGained)
-        searchbar.lineEditFocusGained.connect(self.resetPreviousButton)
-        searchbar.lineEditTextChanged.connect(self.lineEditTextChanged)
 
         topFrameLayout: QVBoxLayout = QVBoxLayout()
         #topFrameLayout.addWidget(logo)
-        topFrameLayout.addWidget(searchbar)
         topFrameLayout.setContentsMargins(0,0,10,20)
         topFrameLayout.setSpacing(20)
         topFrameLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -97,7 +92,7 @@ class QSidebar(QFrame):
         rightFrameLayout.addWidget(librayNav,2)
         rightFrameLayout.addWidget(categoryNav,2)
         rightFrameLayout.addWidget(generalNav,2)
-        rightFrameLayout.setContentsMargins(10,2,10,20)
+        rightFrameLayout.setContentsMargins(10,2,0,20)
         rightFrameLayout.setSpacing(5)
         #rightFrameLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         rightFrame.setLayout(rightFrameLayout)

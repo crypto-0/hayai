@@ -1,14 +1,6 @@
 /* General settings for the main window */
-QWidget#window {
-  background-color: #0d0c0f;
-}
-
-QMenuBar {
-  background-color: #0d0c0f;
-}
-/* Settings for the title bar */
-QWidget#window::titlebar {
-  background-color: #0d0c0f;
+QWindow {
+  background-color: #0d0c0f
 }
 
 /* Settings for the separator between title bar and content */
@@ -106,7 +98,8 @@ QGroupBox#QProviderList {
 
 #QFilmDetail #title{
   font-size: 20px;
-  color: white;
+  color: #7c859E
+
 }
 
 #QFilmDetail QPushButton {
@@ -136,10 +129,10 @@ QGroupBox#QProviderList {
 }
 
 #QDetail #QDetailsLabel{
-  color: rgba(255,255,255,1)
+  color: #7c859E;
 }
 #QDetail #QGenresLabel, #QDetail #QCountryLabel, #QDetail #QRuntimeLabel{
-  color: rgba(255,255,255,.9)
+  color: #7c859E;
 }
 /* Settings for the home widget */
 #QHome {
@@ -212,13 +205,13 @@ QListView::item:selected{
 QScrollBar {
   width: 10px;
   margin: 0px 0px 0px 0px;
-  background-color: inherit;
+  background-color: #7c859E;
 }
 
 QScrollBar::handle {
   min-height: 0px;
-  border-radius: 4px;
-  background-color: #7c859E;
+  border-bottom: 0px;
+
 }
 
 QScrollBar::add-line {

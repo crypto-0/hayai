@@ -1,5 +1,5 @@
 from typing import Optional
-from PyQt5.QtCore import QEvent, QTimer, Qt, pyqtSignal
+from PyQt5.QtCore import QEvent, QSize, QTimer,  pyqtSignal
 from PyQt5.QtGui import  QIcon, QPixmap
 from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QWidget
 
@@ -15,18 +15,19 @@ class QSearchbar(QFrame):
         self.timer.setInterval(500)
 
         searchLabel: QLabel = QLabel()
-        searchLabel.setPixmap(QPixmap("hayai/widgets/sidebar/assets/icons/search.png"))
-        searchLabel.setPixmap(searchLabel.pixmap().scaled(16,16))
+        searchLabel.setPixmap(QPixmap("hayai/widgets/searchbar/assets/icons/search.png"))
+        searchLabel.setPixmap(searchLabel.pixmap().scaled(24,24))
 
         self.searchLineEdit: QLineEdit = QLineEdit()
         self.searchLineEdit.setFixedHeight(30)
-        self.searchLineEdit.setPlaceholderText("Quick search")
+        self.searchLineEdit.setPlaceholderText("What are you looking for ?")
         self.searchLineEdit.setFrame(False)
         self.searchLineEdit.setAutoFillBackground(False)
         self.searchLineEdit.installEventFilter(self)
 
         clearButton: QPushButton = QPushButton()
-        clearButton.setIcon(QIcon("hayai/widgets/sidebar/assets/icons/clear.png"))
+        clearButton.setIcon(QIcon("hayai/widgets/searchbar/assets/icons/clear.png"))
+        clearButton.setIconSize(QSize(24,24))
 
         clearButton.clicked.connect(self.searchLineEdit.clear)
         self.timer.timeout.connect(self.__emitEditedText)

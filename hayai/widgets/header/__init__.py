@@ -1,1 +1,0 @@
-from .headerwidget import QHeader
