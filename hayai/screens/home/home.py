@@ -41,8 +41,8 @@ class QHome(QFrame):
         scrollArea.verticalScrollBar().valueChanged.connect(self.scrollbarValueChanged)
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         for category in providerParser.home_categories:
-            filmRow: QFilmRow = QFilmRow(category)
-            #filmRow.setFilmGenerator(providerParser.parse_category(category=category))
+            filmRow: QFilmRow = QFilmRow(category,parent=self)
+            filmRow.setFilmGenerator(providerParser.parse_category(category=category))
             filmRow.filmClicked.connect(self.filmClicked)
             scrollAreaFrameLayout.addWidget(filmRow)
 

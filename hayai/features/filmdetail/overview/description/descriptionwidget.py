@@ -22,7 +22,7 @@ class QDescription(QFrame):
         self.descriptionLabel.setMaximumWidth(600)
         self.descriptionLabel.setWordWrap(True)
 
-        self.playButton: QPushButton = QPushButton("Play")
+        self.playButton: QPushButton = QPushButton("Download")
         self.playButton.setFixedSize(100,20)
 
         descriptionLayout: QVBoxLayout = QVBoxLayout()

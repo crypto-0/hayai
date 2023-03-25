@@ -9,7 +9,7 @@ class EpisodeListModel(QAbstractListModel):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent=parent)
         self.episodes: List[Episode] = []
-        self.defaultThumbnail: QIcon = QIcon("hayai/features/filmdetail/episode/assets/icons/video.png")
+        self.defaultThumbnail: QIcon = QIcon("hayai/features/filmdetail/episode/assets/icons/download.png")
 
     def rowCount(self, parent = QModelIndex()):
         return len(self.episodes)

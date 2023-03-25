@@ -1,39 +1,48 @@
 from collections.abc import Iterator
 from typing import List, Optional 
-from PyQt5.QtCore import  QThread, QThreadPool, Qt, pyqtSignal
+from PyQt5.QtCore import  QCoreApplication, QThread, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtGui import QColor, QIcon, QImage, QPixmap 
 from provider_parsers import Film
-from hayai.concurrency import Worker
 from .workers import QFilmGeneratorWorker
-import requests
+from .workers import QFilmImageWorker
 
 class QFilmListModel(QAbstractListModel):
-    session = requests.session()
     extraRole: int = Qt.UserRole  #pyright: ignore
     isTvRole: int = Qt.UserRole + 1 #pyright: ignore
     linkRole: int = Qt.UserRole + 2 #pyright: ignore
     generatorChange: pyqtSignal = pyqtSignal(object)
     fetchFilms: pyqtSignal = pyqtSignal()
+    fetchImage: pyqtSignal = pyqtSignal(str, QModelIndex)
 
     def __init__(self,filmGenerator:Optional[Iterator[Film]] = None,batch: int = 30,maxFilms: int = -1, parent=None,):
         super().__init__(parent)
         self.placeHolderPixmap: QPixmap = QPixmap(600,int(600 * 1.5))
         self.placeHolderPixmap.fill(QColor("#7c859E"))
+
         self.maxFilms: int = maxFilms
         self.films: List[Film] = []
-        self.imagesThreadPool: QThreadPool = QThreadPool(self)
-        self.imagesThreadPool.setMaxThreadCount(4)
+
         self.filmGeneratorWorker: QFilmGeneratorWorker = QFilmGeneratorWorker(filmGenerator,batch)
-        self.filmGeneratorThread: QThread = QThread(parent=parent)
+        self.filmGeneratorThread: QThread = QThread(parent=self)
         self.filmGeneratorWorker.moveToThread(self.filmGeneratorThread)
         self.filmGeneratorThread.finished.connect(self.filmGeneratorWorker.deleteLater)
         self.fetchFilms.connect(self.filmGeneratorWorker.fetchFilms) #pyright: ignore
         self.generatorChange.connect(self.filmGeneratorWorker.setGenerator) #pyright: ignore
         self.filmGeneratorWorker.result.connect(self.__appendFilms)
+
+        self.filmImageWorker: QFilmImageWorker = QFilmImageWorker()
+        self.filmImageThread: QThread = QThread(parent=self)
+        self.filmImageWorker.moveToThread(self.filmImageThread)
+        self.filmImageThread.finished.connect(self.filmImageWorker.deleteLater)
+        self.fetchImage.connect(self.filmImageWorker.fetchImage) #pyright: ignore
+        self.filmImageWorker.result.connect(self.__setFilmIconFromImage)
+
         self.filmGeneratorThread.start()
-        #self.generatorChange.connect(self.filmGeneratorWorker.setGenerator)
+        self.filmImageThread.start()
+
+        QCoreApplication.instance().aboutToQuit.connect(self.cleanup)
 
 
     def rowCount(self, parent=QModelIndex()) -> int:
@@ -88,11 +97,7 @@ class QFilmListModel(QAbstractListModel):
             if hasattr(self.films[row],"poster_icon"):
                 return self.films[row].poster_icon #pyright: ignore
             else:
-                worker: Worker = Worker(self.__fetchFilmImage,self.films[row].poster_url,index)
-                worker.signals.result.connect(lambda x: self.__setFilmIconFromImage(*x))
-                worker.setAutoDelete(True)
-                self.destroyed.connect(worker.exit)
-                self.imagesThreadPool.start(worker)
+                self.fetchImage.emit(self.films[row].poster_url,index)
 
             return QIcon(self.placeHolderPixmap)
 
@@ -118,16 +123,6 @@ class QFilmListModel(QAbstractListModel):
             self.films.extend(films)
             self.endInsertRows()
 
-    def __fetchFilmImage(self,url: str,index: QModelIndex,progressSignal = None):
-        headers =  {
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/75.0.3770.142 Safari/537.36',
-                'X-Requested-With': 'XMLHttpRequest'
-                }
-        image: QImage = QImage()
-        r = requests.Request = QFilmListModel.session.get(url,headers=headers) 
-        image.loadFromData(r.content)
-        return (image,index)
-
     def __setFilmIconFromImage(self,image: QImage,index: QModelIndex):
         pixmap: QPixmap = QPixmap.fromImage(image)
         icon: QIcon = QIcon(pixmap)
@@ -136,9 +131,9 @@ class QFilmListModel(QAbstractListModel):
     def setFilmGenerator(self, filmGenerator: Optional[Iterator[Film]]) -> None:
         self.beginResetModel()
         self.filmGeneratorWorker.cancel()
+        self.filmImageWorker.cancel()
         self.generatorChange.emit(filmGenerator)
         self.films.clear()
-        self.imagesThreadPool.clear()
         self.endResetModel()
 
     def clear(self):
@@ -148,10 +143,10 @@ class QFilmListModel(QAbstractListModel):
         self.filmGeneratorWorker.result.connect(self.__appendFilms)
         self.endResetModel()
 
-    def __del__(self):
-        self.cleanUp()
-
-    def cleanUp(self):
+    def cleanup(self):
+        self.filmGeneratorWorker.cancel()
+        self.filmImageWorker.cancel()
         self.filmGeneratorThread.quit()
         self.filmGeneratorThread.wait()
-
+        self.filmImageThread.quit()
+        self.filmImageThread.wait()

@@ -23,15 +23,15 @@ class QWindow(QMainWindow):
     def __init__(self,parent: Optional[QWidget] = None):
         super().__init__()
 
-        self.sidebar: QSidebar = QSidebar(Sol)
+        self.sidebar: QSidebar = QSidebar(Sol,parent=self)
 
-        self.filmDetail: QFilmDetail = QFilmDetail(Sol)
+        self.filmDetail: QFilmDetail = QFilmDetail(Sol,parent=self)
 
-        self.category: QCategory = QCategory(Sol)
+        self.category: QCategory = QCategory(Sol,parent=self)
 
-        self.home: QHome = QHome(Sol)
+        self.home: QHome = QHome(Sol,parent=self)
 
-        self.search: QSearch = QSearch(Sol)
+        self.search: QSearch = QSearch(Sol,parent=self)
 
         mainFrame: QFrame = QFrame()
         mainFrame.setObjectName("QMainFrame")

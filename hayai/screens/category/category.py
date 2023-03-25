@@ -14,7 +14,7 @@ class QCategory(QFrame):
 
         self.providerParser: Type[ProviderParser] = providerParser
 
-        self.categoryModel: QFilmListModel =QFilmListModel()
+        self.categoryModel: QFilmListModel =QFilmListModel(parent=self)
 
         self.categoryView: QResizableIconListView = QResizableIconListView()
         self.categoryView.setWrapping(True)
@@ -35,6 +35,4 @@ class QCategory(QFrame):
         self.setObjectName("QCategory")
 
     def load(self,categoryButton: QAbstractButton):
-        #self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
-        pass
-
+        self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))

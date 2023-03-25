@@ -1,16 +1,14 @@
 from typing import List, Optional, Type
-from PyQt5.QtCore import QModelIndex, QSize, Qt
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import QModelIndex,  Qt
+from PyQt5.QtGui import QIcon
 
-from PyQt5.QtWidgets import QComboBox,  QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QComboBox,  QFrame, QHBoxLayout,  QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 from hayai.features.filmdetail import QOverview
 from hayai.features.filmdetail import SeasonListModel
 from hayai.features.filmdetail import EpisodeListModel
-from hayai.widgets.film.filmdelegate.filmdelegatewidget import QFilmDelegate
 from hayai.widgets.resizableiconlistview import QResizableIconListView
 from hayai.widgets.film import QFilmListModel
 from hayai.widgets.film import QFilmRow
-from hayai.concurrency import Worker
 from provider_parsers import Season, Episode, ProviderParser,FilmInfo
 
 

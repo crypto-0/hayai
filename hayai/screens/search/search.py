@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import  QFrame,  QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 from typing import Optional, Type
 from hayai.widgets.film import QFilmListModel
+from hayai.widgets.film import QFilmDelegate
 from hayai.widgets import QResizableIconListView
 from provider_parsers import ProviderParser
 from hayai.widgets.searchbar import QSearchbar
@@ -16,11 +17,12 @@ class QSearch(QFrame):
 
         self.providerParser: Type[ProviderParser] = providerParser
 
-        self.searchModel: QFilmListModel =QFilmListModel()
+        self.searchModel: QFilmListModel =QFilmListModel(parent=self)
 
         self.searchView: QResizableIconListView = QResizableIconListView()
         self.searchView.setWrapping(True)
         self.searchView.setModel(self.searchModel)
+        self.searchView.setItemDelegate(QFilmDelegate())
 
         self.searchbar: QSearchbar = QSearchbar()
 

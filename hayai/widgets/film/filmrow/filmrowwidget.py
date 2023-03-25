@@ -32,9 +32,9 @@ class QFilmRow(QFrame):
         righNavButton.setIconSize(QSize(24,24))
         righNavButton.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
 
-        self.categoryModel: QFilmListModel = QFilmListModel()
+        self.categoryModel: QFilmListModel = QFilmListModel(parent=self)
 
-        categoryView: QResizableIconListView = QResizableIconListView()
+        categoryView: QResizableIconListView = QResizableIconListView(parent=parent)
         categoryView.setItemDelegate(QFilmDelegate())
         categoryView.setModel(self.categoryModel)
         categoryView.setWrapping(False)
