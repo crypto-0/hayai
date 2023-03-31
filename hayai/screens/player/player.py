@@ -1,8 +1,8 @@
 from typing import Optional
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 import mpv
 
-from PyQt5.QtWidgets import QFrame, QWidget
+from PyQt6.QtWidgets import QFrame, QWidget
 
 
 class QPlayer(QFrame):

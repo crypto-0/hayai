@@ -1,12 +1,12 @@
-from PyQt5.QtCore import QModelIndex, pyqtSignal
-from PyQt5.QtWidgets import  QFrame,  QVBoxLayout
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtCore import QModelIndex, pyqtSignal
+from PyQt6.QtWidgets import  QFrame,  QVBoxLayout
+from PyQt6.QtWidgets import QWidget
 from typing import Optional, Type
-from hayai.widgets.film import QFilmListModel
-from hayai.widgets.film import QFilmDelegate
-from hayai.widgets import QResizableIconListView
+from hayai.features.models.filmlist import QFilmListModel
+from hayai.features.widgets.film import QFilmDelegate
+from hayai.features.widgets.autofitview import QAutoFitView
 from provider_parsers import ProviderParser
-from hayai.widgets.searchbar import QSearchbar
+from hayai.features.widgets.searchbar import QSearchbar
 
 class QSearch(QFrame):
     filmClicked: pyqtSignal = pyqtSignal(QModelIndex)
@@ -19,7 +19,7 @@ class QSearch(QFrame):
 
         self.searchModel: QFilmListModel =QFilmListModel(parent=self)
 
-        self.searchView: QResizableIconListView = QResizableIconListView()
+        self.searchView: QAutoFitView = QAutoFitView()
         self.searchView.setWrapping(True)
         self.searchView.setModel(self.searchModel)
         self.searchView.setItemDelegate(QFilmDelegate())
@@ -39,5 +39,5 @@ class QSearch(QFrame):
         self.setObjectName("QSearch")
 
     def search(self,query: str):
-        self.searchModel.setFilmGenerator(self.providerParser.parse_search(query,fetch_image = False))
+        self.searchModel.reset(self.providerParser.parse_search(query,fetch_image = False))
 

@@ -1,3 +1,2 @@
-from .overview import QOverview
-from .episode import  EpisodeListModel
-from .season import SeasonListModel
+from . import models
+from . import widgets

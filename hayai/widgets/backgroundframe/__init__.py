@@ -1,1 +1,0 @@
-from .backgroundframe import QBackgroundFrame

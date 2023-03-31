@@ -1,15 +1,14 @@
 from typing import List, Optional, Type
-from PyQt5.QtCore import QModelIndex, QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import QModelIndex, Qt, pyqtSignal
 
-from PyQt5.QtWidgets import  QFrame, QHBoxLayout,  QLabel, QListView, QPushButton, QScrollArea,  QSizePolicy, QVBoxLayout
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtWidgets import  QFrame, QHBoxLayout,  QListView,  QScrollArea,  QSizePolicy, QVBoxLayout
+from PyQt6.QtWidgets import QWidget
 from provider_parsers import ProviderParser
 
-from hayai.widgets.film import QFilmListModel
-from hayai.widgets import QResizableIconListView
-from hayai.widgets.film import QFilmDelegate
-from hayai.widgets.film import QFilmRow
+from hayai.features.models.filmlist import QFilmListModel
+from hayai.features.widgets.autofitview import QAutoFitView
+from hayai.features.widgets.film import QFilmDelegate
+from hayai.features.widgets.film import QFilmRow
 
 class QHome(QFrame):
 
@@ -41,9 +40,14 @@ class QHome(QFrame):
         scrollArea.verticalScrollBar().valueChanged.connect(self.scrollbarValueChanged)
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         for category in providerParser.home_categories:
-            filmRow: QFilmRow = QFilmRow(category,parent=self)
-            filmRow.setFilmGenerator(providerParser.parse_category(category=category))
-            filmRow.filmClicked.connect(self.filmClicked)
+            filmModel: QFilmListModel = QFilmListModel(providerParser.parse_category(category=category))
+            filmView: QAutoFitView = QAutoFitView()
+            filmView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            filmView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            filmView.setItemDelegate(QFilmDelegate())
+            filmView.setModel(filmModel)
+            filmRow: QFilmRow = QFilmRow(category,filmView,parent=self)
+            filmView.clicked.connect(self.filmClicked)
             scrollAreaFrameLayout.addWidget(filmRow)
 
         scrollAreaFrameLayout.setContentsMargins(0,0,0,0)

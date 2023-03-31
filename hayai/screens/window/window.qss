@@ -161,7 +161,7 @@ QGroupBox#QProviderList {
 QListView::item {
   text-align: left;
 }
-#QResizableIconListView {
+#QAutoFitView {
   background-color: inherit;
   border: 2px solid;
   border-color: transparent;
@@ -171,13 +171,13 @@ QListView::item:selected{
   background-color:none;
 }
 
-#QResizableIconListView::item {
+#QAutoFitView::item {
   color: #a1acbc;
   outline: none;
 }
 
 
-#QResizableIconListView::item:hover {
+#QAutoFitView::item:hover {
   background-color: black;
 }
 

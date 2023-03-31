@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QAbstractButton,
     QFrame,
     QStackedLayout,
@@ -8,10 +8,10 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QDockWidget,
 )
-from PyQt5.QtCore import QModelIndex, Qt
+from PyQt6.QtCore import QModelIndex, Qt
 from provider_parsers import Sol
 
-from hayai.widgets import QSidebar
+from hayai.features.widgets.sidebar import QSidebar
 
 from ..category import QCategory
 from ..home  import QHome

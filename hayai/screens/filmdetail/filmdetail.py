@@ -1,14 +1,15 @@
 from typing import List, Optional, Type
-from PyQt5.QtCore import QModelIndex,  Qt
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import QModelIndex,  Qt
+from PyQt6.QtGui import QIcon
 
-from PyQt5.QtWidgets import QComboBox,  QFrame, QHBoxLayout,  QScrollArea, QSizePolicy, QVBoxLayout, QWidget
-from hayai.features.filmdetail import QOverview
-from hayai.features.filmdetail import SeasonListModel
-from hayai.features.filmdetail import EpisodeListModel
-from hayai.widgets.resizableiconlistview import QResizableIconListView
-from hayai.widgets.film import QFilmListModel
-from hayai.widgets.film import QFilmRow
+from PyQt6.QtWidgets import QComboBox,  QFrame, QHBoxLayout,  QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from hayai.features.filmdetail.widgets import QOverview
+from hayai.features.filmdetail.models import SeasonListModel
+from hayai.features.filmdetail.models import EpisodeListModel
+from hayai.features.widgets.autofitview import QAutoFitView
+from hayai.features.models import QFilmListModel
+from hayai.features.widgets.film import QFilmRow
+from hayai.features.widgets.film import QFilmDelegate
 from provider_parsers import Season, Episode, ProviderParser,FilmInfo
 
 
@@ -24,11 +25,9 @@ class QFilmDetail(QFrame):
         scrollAreaFrame.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Minimum)
 
         scrollArea = QScrollArea()
-        #scrollArea.setFixedWidth(320)
         scrollArea.setObjectName("scroll-area")
         scrollArea.setWidget(scrollAreaFrame)
         scrollArea.horizontalScrollBar().setEnabled(False)
-        #scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         scrollArea.setWidgetResizable(True)
         scrollArea.setContentsMargins(0,0,0,0)
@@ -42,22 +41,25 @@ class QFilmDetail(QFrame):
         self.seasonComboBox: QComboBox = QComboBox()
         self.seasonComboBox.setModel(self.seasonListModel)
 
-        self.episodeView: QResizableIconListView = QResizableIconListView()
+        self.episodeView: QAutoFitView = QAutoFitView(showAll=True)
         self.episodeView.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
-        self.episodeView.setIconRatio(.7)
-        self.episodeView.setMinimumIconSize(200,int(200 * .7))
         self.episodeView.setSpacing(0)
         self.episodeView.setWrapping(True)
-        self.episodeView.setShowAll(True)
-        self.episodeView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) #pyright: ignore
+        self.episodeView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) #pyright: ignore
         self.episodeView.horizontalScrollBar().setEnabled(False)
         self.episodeView.setModel(self.episodeModel)
 
-        self.recommendRow: QFilmRow = QFilmRow("You may also like")
+
+        self.recommendModel: QFilmListModel = QFilmListModel()
+        self.recommendView: QAutoFitView = QAutoFitView()
+        self.recommendView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.recommendView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.recommendView.setItemDelegate(QFilmDelegate())
+        self.recommendView.setModel(self.recommendModel)
+        self.recommendRow: QFilmRow = QFilmRow("You may also like",self.recommendView)
 
         self.seasonComboBox.currentIndexChanged.connect(self.__updateEpisodes)
-        self.recommendRow.filmClicked.connect(self.updateFilmDetail)
-
+        self.recommendView.clicked.connect(self.updateFilmDetail)
 
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         scrollAreaFrameLayout.addWidget(self.overview)
@@ -85,8 +87,7 @@ class QFilmDetail(QFrame):
     def updateFilmDetail(self,index: QModelIndex):
         link: str = index.data(QFilmListModel.linkRole)
         isTv: bool = index.data(QFilmListModel.isTvRole)
-        #posterIcon: QIcon = index.data(Qt.DecorationRole) #pyright: ignore
-        posterIcon: QIcon = index.data(Qt.DecorationRole) #pyright: ignore
+        posterIcon: QIcon = index.data(Qt.ItemDataRole.DecorationRole) 
         filmInfo: FilmInfo = self.providerParser.parse_info(link)
         if isTv:
             extra: str = "TV"
@@ -99,21 +100,17 @@ class QFilmDetail(QFrame):
             extra += f"{len(seasons)} Seasons"
             if len(seasons) > 0:
                 self.seasonListModel.loadSeasons(seasons=seasons)
-                seasonIndex: QModelIndex = self.seasonListModel.index(0,0,QModelIndex())
-                #self.__updateEpisodes(seasonIndex)
             self.seasonComboBox.setVisible(True)
             self.episodeView.setVisible(True)
         else:
             self.seasonComboBox.setVisible(False)
             self.episodeView.setVisible(False)
         self.overview.updateOverview(posterIcon=posterIcon,title=filmInfo.title,description=filmInfo.description,genre=filmInfo.genre,country=filmInfo.country,duration=filmInfo.duration + "min",extra=extra)
-        self.recommendRow.setFilmGenerator(iter(filmInfo.recommendation))
+        self.recommendModel.reset(iter(filmInfo.recommendation))
 
     def __updateEpisodes(self,index: int):
         id: str = self.seasonComboBox.currentData(SeasonListModel.idRole)
         episodes: List[Episode] = self.providerParser.parse_episodes(id)
         self.episodeModel.loadEpisodes(episodes=episodes)
-        #self.episodeView.updateGeometries()
         self.episodeView.resize(self.size())
-
 

@@ -1,1 +1,0 @@
-from .filmlistmodelwidget import QFilmListModel

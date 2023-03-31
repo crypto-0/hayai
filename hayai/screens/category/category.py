@@ -1,9 +1,10 @@
-from PyQt5.QtCore import QModelIndex, Qt, pyqtSignal
-from PyQt5.QtWidgets import QAbstractButton, QFrame, QHBoxLayout
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtCore import QModelIndex, pyqtSignal
+from PyQt6.QtWidgets import QAbstractButton, QFrame, QHBoxLayout
+from PyQt6.QtWidgets import QWidget
 from typing import Optional, Type
-from hayai.widgets.film import QFilmListModel, QFilmDelegate
-from hayai.widgets import QResizableIconListView
+from hayai.features.widgets.film import QFilmDelegate
+from hayai.features.models.filmlist import QFilmListModel
+from hayai.features.widgets.autofitview import QAutoFitView
 from provider_parsers import ProviderParser
 
 class QCategory(QFrame):
@@ -16,7 +17,7 @@ class QCategory(QFrame):
 
         self.categoryModel: QFilmListModel =QFilmListModel(parent=self)
 
-        self.categoryView: QResizableIconListView = QResizableIconListView()
+        self.categoryView: QAutoFitView = QAutoFitView()
         self.categoryView.setWrapping(True)
         self.categoryView.setModel(self.categoryModel)
         self.categoryView.setItemDelegate(QFilmDelegate())
@@ -24,7 +25,6 @@ class QCategory(QFrame):
         self.categoryView.horizontalScrollBar().setEnabled(False)
 
         self.categoryView.clicked.connect(self.filmClicked)
-
 
         categoryLayout: QHBoxLayout = QHBoxLayout()
         categoryLayout.addWidget(self.categoryView)
@@ -35,4 +35,4 @@ class QCategory(QFrame):
         self.setObjectName("QCategory")
 
     def load(self,categoryButton: QAbstractButton):
-        self.categoryModel.setFilmGenerator(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
+        self.categoryModel.reset(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
