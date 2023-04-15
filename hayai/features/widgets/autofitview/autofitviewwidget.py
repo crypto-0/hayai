@@ -1,8 +1,7 @@
 import math
 from typing import Optional
-from PyQt6 import QtWidgets
 from PyQt6.QtCore import  QEasingCurve, QEvent, QPropertyAnimation, QSize, Qt
-from PyQt6.QtWidgets import  QListView, QWidget
+from PyQt6.QtWidgets import  QAbstractItemView, QListView, QWidget
 
 class QAutoFitView(QListView):
 
@@ -18,8 +17,9 @@ class QAutoFitView(QListView):
         self.animation.setEasingCurve(QEasingCurve.Type.OutQuad)
 
         self.setLayoutMode(QListView.LayoutMode.Batched)
-        self.setBatchSize(50)
+        self.setBatchSize(32)
         self.setViewMode(QListView.ViewMode.IconMode)
+        self.setSizeAdjustPolicy(QAbstractItemView.SizeAdjustPolicy.AdjustToContents)
         self.setFlow(QListView.Flow.LeftToRight)
         self.setUniformItemSizes(True)
         self.setResizeMode(QListView.ResizeMode.Adjust)
@@ -32,8 +32,7 @@ class QAutoFitView(QListView):
         self.viewport().installEventFilter(self)
         self.setObjectName("QAutoFitView")
         self.currentIconSize: QSize = self.iconSize()
-        self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
-        self.setAutoScroll(False)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.resize(QSize(0,0))
 
 
@@ -74,13 +73,15 @@ class QAutoFitView(QListView):
             itemSpacing = self.spacing() 
             availableWidth = viewport_width - (frameWidth * 2) - (itemSpacing * 2) - self.verticalScrollBar().width()
             maxItemPerRow = availableWidth // self.minimumIconSize.width() 
-            if maxItemPerRow > 1:
+            if maxItemPerRow > 0:
                 iconWidth = (availableWidth // maxItemPerRow ) -(itemSpacing)
             else:
                 iconWidth = self.minimumIconSize.width() - (itemSpacing * 2 ) - (frameWidth * 2) 
             iconHeight = int(iconWidth * self.iconSizeRatio)
             iconSize = QSize(iconWidth,iconHeight) 
+            self.blockSignals(True)
             self.setIconSize(iconSize)
+            self.blockSignals(False)
 
             if self.showAll:
                 rowHeight = self.sizeHintForRow(0)
@@ -93,5 +94,4 @@ class QAutoFitView(QListView):
             return True
 
         return super().eventFilter(obj, event)
-    def scrollToTop(self):
-        print("here at the top")
+

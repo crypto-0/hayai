@@ -1,38 +1,76 @@
-from PyQt6.QtCore import QModelIndex, pyqtSignal
-from PyQt6.QtWidgets import QAbstractButton, QFrame, QHBoxLayout
+from PyQt6.QtCore import  Q_ARG, QMetaObject, QModelIndex, QThread,  pyqtSignal
+from PyQt6.QtWidgets import  QAbstractItemView,  QHBoxLayout, QVBoxLayout
 from PyQt6.QtWidgets import QWidget
-from typing import Optional, Type
-from hayai.features.widgets.film import QFilmDelegate
+from typing import Optional 
+
+from providers import Page, Provider, PageInfo
+from hayai.features.qprovider import QProvider
+from hayai.features.delegates.filmdelegate import QFilmDelegate
 from hayai.features.models.filmlist import QFilmListModel
 from hayai.features.widgets.autofitview import QAutoFitView
-from provider_parsers import ProviderParser
+from hayai.features.widgets.titlenavbar import QTitleNavbar
+from ..screen import QScreen
 
-class QCategory(QFrame):
+class QCategory(QScreen):
     filmClicked: pyqtSignal = pyqtSignal(QModelIndex)
+    changeGenerator: pyqtSignal = pyqtSignal(object)
 
-    def __init__(self, providerParser: Type[ProviderParser], parent: Optional[QWidget] = None ) -> None:
+    def __init__(self,category: str, provider: Provider, parent: Optional[QWidget] = None ) -> None:
         super().__init__(parent=parent)
 
-        self.providerParser: Type[ProviderParser] = providerParser
+        self._qprovider = QProvider(provider)
+        self._qproviderThread: QThread = QThread()
+        self._qprovider.moveToThread(self._qproviderThread)
+        self._category = category
+        self._pageInfo = PageInfo(1,1,True)
 
-        self.categoryModel: QFilmListModel =QFilmListModel(parent=self)
+        self._categoryModel: QFilmListModel =QFilmListModel()
 
-        self.categoryView: QAutoFitView = QAutoFitView()
-        self.categoryView.setWrapping(True)
-        self.categoryView.setModel(self.categoryModel)
-        self.categoryView.setItemDelegate(QFilmDelegate())
-        self.categoryView.setBatchSize(50)
-        self.categoryView.horizontalScrollBar().setEnabled(False)
+        titleNavbar: QTitleNavbar = QTitleNavbar(category)
+        categoryView: QAutoFitView = QAutoFitView()
+        categoryView.setWrapping(True)
+        categoryView.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerItem)
+        categoryView.setSizeAdjustPolicy(QAbstractItemView.SizeAdjustPolicy.AdjustToContents)
+        categoryView.setModel(self._categoryModel)
+        categoryView.setItemDelegate(QFilmDelegate())
+        categoryView.horizontalScrollBar().setEnabled(False)
 
-        self.categoryView.clicked.connect(self.filmClicked)
+        categoryView.clicked.connect(self.filmClicked)
+        self._qprovider.page.connect(self.pageLoaded)
+        self.stopped.connect(self._categoryModel.clear)
+        self.started.connect(lambda :QMetaObject.invokeMethod(self._qprovider,"getCategory",Q_ARG(str,self._category),Q_ARG(int,1)))
+        titleNavbar.forward.connect(self.nextPage)
+        titleNavbar.back.connect(self.prevPage)
 
-        categoryLayout: QHBoxLayout = QHBoxLayout()
-        categoryLayout.addWidget(self.categoryView)
+        categoryLayout: QVBoxLayout = QVBoxLayout()
+        categoryLayout.addWidget(titleNavbar)
+        categoryLayout.addWidget(categoryView)
         categoryLayout.setContentsMargins(0,0,0,0)
         categoryLayout.setSpacing(0)
         self.setLayout(categoryLayout)
 
         self.setObjectName("QCategory")
+        self._qproviderThread.start()
 
-    def load(self,categoryButton: QAbstractButton):
-        self.categoryModel.reset(self.providerParser.parse_category(category=categoryButton.text().lower(),fetch_image=False))
+    def pageLoaded(self,page: Page):
+        self._pageInfo = page.pageInfo
+        self._categoryModel.clear()
+        self._categoryModel.appendRow(*page.films)
+
+    def nextPage(self):
+        if self._pageInfo.has_next_page:
+            self._qprovider.getCategory(self._category,self._pageInfo.current_page + 1)
+
+    def prevPage(self):
+        if self._pageInfo.current_page > 1:
+            self._qprovider.getCategory(self._category,self._pageInfo.current_page - 1)
+    def onStart(self):
+        self._pageInfo = PageInfo(1,1,True)
+
+        return super().onStart()
+
+    def onDestroy(self):
+        self._qproviderThread.quit()
+        self._qproviderThread.wait()
+        return super().onDestroy()
+

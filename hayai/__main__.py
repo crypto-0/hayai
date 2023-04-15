@@ -6,7 +6,9 @@ def __hayai__():
     app = QApplication(sys.argv)
 
     window = QWindow()
+    app.aboutToQuit.connect(window.onDestroy)
     window.show()
+
     sys.exit(app.exec())
     
 if __name__ == "__main__":

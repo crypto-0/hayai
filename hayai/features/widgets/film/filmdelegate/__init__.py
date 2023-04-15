@@ -1,1 +1,0 @@
-from .filmdelegatewidget import QFilmDelegate

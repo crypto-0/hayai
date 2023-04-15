@@ -1,28 +1,22 @@
-from typing import List, Optional, Type
-from PyQt6.QtCore import QModelIndex, Qt, pyqtSignal
+from typing import  Optional
+from PyQt6.QtCore import Q_ARG, QMetaObject, QModelIndex, QThread, Qt, pyqtSignal
 
-from PyQt6.QtWidgets import  QFrame, QHBoxLayout,  QListView,  QScrollArea,  QSizePolicy, QVBoxLayout
+from PyQt6.QtWidgets import  QFrame, QHBoxLayout,  QScrollArea,  QSizePolicy, QVBoxLayout
 from PyQt6.QtWidgets import QWidget
-from provider_parsers import ProviderParser
+from providers import  Provider
 
 from hayai.features.models.filmlist import QFilmListModel
-from hayai.features.widgets.autofitview import QAutoFitView
-from hayai.features.widgets.film import QFilmDelegate
-from hayai.features.widgets.film import QFilmRow
+from hayai.features.widgets.filmrow import QFilmRow
+from hayai.features.qprovider import QProvider
+from ..screen import QScreen
 
-class QHome(QFrame):
+class QHome(QScreen):
 
     filmClicked: pyqtSignal = pyqtSignal(QModelIndex)
-    scrollbarValueChanged: pyqtSignal = pyqtSignal(int)
-    def __init__(self, providerParser: Type[ProviderParser] , parent: Optional[QWidget] = None ) -> None:
+    def __init__(self,provider: Provider, parent: Optional[QWidget] = None ) -> None:
         super().__init__(parent=parent)
 
-        self.providerParser: Type[ProviderParser] = providerParser
-
-        self.categoryModels: List[QFilmListModel] = []
-
-        self.categoryView: List[QListView] = []
-
+        self._qprovidersThread: QThread = QThread()
 
         scrollAreaFrame: QFrame = QFrame()
 
@@ -37,17 +31,16 @@ class QHome(QFrame):
         scrollArea.setWidgetResizable(True)
         scrollArea.setContentsMargins(0,0,0,0)
 
-        scrollArea.verticalScrollBar().valueChanged.connect(self.scrollbarValueChanged)
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
-        for category in providerParser.home_categories:
-            filmModel: QFilmListModel = QFilmListModel(providerParser.parse_category(category=category))
-            filmView: QAutoFitView = QAutoFitView()
-            filmView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            filmView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            filmView.setItemDelegate(QFilmDelegate())
-            filmView.setModel(filmModel)
-            filmRow: QFilmRow = QFilmRow(category,filmView,parent=self)
-            filmView.clicked.connect(self.filmClicked)
+        for category in provider.available_home_categories:
+            qprovider: QProvider = QProvider(provider)
+            qprovider.moveToThread(self._qprovidersThread)
+            self._qprovidersThread.finished.connect(qprovider.deleteLater)
+            filmModel: QFilmListModel = QFilmListModel()
+            filmRow: QFilmRow = QFilmRow(category,filmModel,qprovider,parent=self)
+            filmRow.filmClicked.connect(self.filmClicked)
+            self.started.connect(lambda category=category, qprovider= qprovider:QMetaObject.invokeMethod(qprovider,"getCategory",Q_ARG(str,category),Q_ARG(int,1)))
+            self.stopped.connect(filmModel.clear)
             scrollAreaFrameLayout.addWidget(filmRow)
 
         scrollAreaFrameLayout.setContentsMargins(0,0,0,0)
@@ -63,4 +56,10 @@ class QHome(QFrame):
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
         self.setObjectName("QHome")
+        self._qprovidersThread.start()
+
+    def onDestroy(self):
+        self._qprovidersThread.quit()
+        self._qprovidersThread.wait()
+        return super().onDestroy()
 

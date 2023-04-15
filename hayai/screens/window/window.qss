@@ -145,11 +145,6 @@ QGroupBox#QProviderList {
   background-color: inherit;
 }
 
-#QHome QLabel,#QHome QPushButton {
-  font-size: 18px;
-  color: #7c859E;
-  border: 0px;
-}
 
 /* Settings for the category widget */
 #QCategory {
@@ -196,9 +191,13 @@ QListView::item:selected{
   text-transform: uppercase;
 }
 
-/* Settings for the scroll button */
-#row QPushButton#scroll-button {
-  background-color: rgba(0, 0, 0, .6)
+
+/* Settings for the titlenavbar*/
+
+#QTitleNavbar QPushButton, #QTitleNavbar QLabel{
+  font-size: 18px;
+  color: #7c859E;
+  border: 0px;
 }
 
 /* Settings for the scroll bar */

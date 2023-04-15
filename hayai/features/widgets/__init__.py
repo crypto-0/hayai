@@ -1,4 +1,4 @@
 from . import autofitview
-from . import film
+from . import filmrow
 from . import searchbar
 from . import sidebar

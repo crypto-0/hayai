@@ -2,7 +2,7 @@ from typing import Dict, Optional
 from PyQt6.QtCore import Qt, pyqtSignal
 from .nav import QNav
 from .providerlist import QProviderList
-from provider_parsers import ProviderParser
+from providers import Provider
 from PyQt6.QtWidgets import (
     QAbstractButton,
     QButtonGroup,
@@ -14,15 +14,11 @@ from PyQt6.QtWidgets import (
 )
 
 class QSidebar(QFrame):
-    menuButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
-    categoryButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
-    libraryButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
-    generalButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
-    navButtonToggled: pyqtSignal = pyqtSignal(QAbstractButton)
-    homeButtonToggle: pyqtSignal = pyqtSignal(QAbstractButton)
-    searchButtonToggle: pyqtSignal = pyqtSignal(QAbstractButton)
+    categoryButtonToggled: pyqtSignal = pyqtSignal(str)
+    homeButtonToggle: pyqtSignal = pyqtSignal(str)
+    searchButtonToggle: pyqtSignal = pyqtSignal(str)
 
-    def __init__(self,provider: type[ProviderParser],parent: Optional[QWidget] = None):
+    def __init__(self,provider: Provider,parent: Optional[QWidget] = None):
         super().__init__()
 
         leftFrame: QFrame = QFrame()
@@ -38,37 +34,29 @@ class QSidebar(QFrame):
         #logo: QLogo = QLogo()
         
         providerNav: QProviderList = QProviderList(["sol","zoro","asian"])
-        menuNav: QNav = QNav("menu",["home","search","movies","tv shows"])
+        menuNav: QNav = QNav("menu",["search","home","movie","tv show"])
         librayNav: QNav = QNav("library",["downloads"])
-        categoryNav: QNav = QNav("category",provider.categories)
+        categoryNav: QNav = QNav("category",provider.available_general_categories)
         generalNav: QNav = QNav("general",["setting"])
 
         self.buttonGroup: QButtonGroup = QButtonGroup()
         self.buttonGroup.setExclusive(False)
 
-        id: int = 0
         self.buttonSignalMapping: Dict = {}
-        for idx,button in enumerate(menuNav.getNavButtons()):
-            if idx == 0:
-                self.buttonSignalMapping[id] = self.homeButtonToggle
-            elif idx == 1:
-                self.buttonSignalMapping[id] = self.searchButtonToggle
-            else:
-                self.buttonSignalMapping[id] = self.menuButtonToggled
+        id: int = 0
+        self.buttonSignalMapping[id] = self.searchButtonToggle
+        self.buttonSignalMapping[id + 1] = self.homeButtonToggle
+        self.buttonSignalMapping[id + 2] = self.categoryButtonToggled
+        self.buttonSignalMapping[id + 3] = self.categoryButtonToggled
+        for button in menuNav.getNavButtons():
             self.buttonGroup.addButton(button,id)
             id +=1
-        for button in librayNav.getNavButtons():
-            self.buttonGroup.addButton(button,id)
-            self.buttonSignalMapping[id] = self.libraryButtonToggled
-            id +=1
+
         for button in categoryNav.getNavButtons():
             self.buttonGroup.addButton(button,id)
             self.buttonSignalMapping[id] = self.categoryButtonToggled
             id +=1
-        for button in generalNav.getNavButtons():
-            self.buttonGroup.addButton(button,id)
-            self.buttonSignalMapping[id] = self.generalButtonToggled
-            id +=1
+
 
         self.buttonGroup.buttonToggled.connect(self.buttonToggled)
 
@@ -107,5 +95,5 @@ class QSidebar(QFrame):
         self.setFixedWidth(250)
         self.setObjectName("QSidebar")
     def buttonToggled(self,button: QAbstractButton):
-        self.buttonSignalMapping[self.buttonGroup.id(button)].emit(button)
+        self.buttonSignalMapping[self.buttonGroup.id(button)].emit(button.text().lower())
 

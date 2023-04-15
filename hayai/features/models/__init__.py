@@ -1,1 +1,1 @@
-from .filmlist import QFilmListModel
+from . import filmlist
