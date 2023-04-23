@@ -6,7 +6,8 @@ from .solhomescreen import QSolHomeScreen
 from .solmoviesscreen import QSolMoviesScreen
 from .solimdbscreen import QSolImdbScreen
 from .solshowsscreen import QSolShowsScreen
-from hayai.widgets.solwidgets.solsidebar import QSolSidebar
+from .solfilmdetailscreen import QSolFilmDetailScreen
+from hayai.features.sol.widgets.solsidebar import QSolSidebar
 
 
 class QSolScreen(QScreen):
@@ -34,6 +35,12 @@ class QSolScreen(QScreen):
         self.window().setWindowTitle(home.title)
         home.onStart()
         self.main.addWidget(home)
+        """
+        filmDetail: QSolFilmDetailScreen = QSolFilmDetailScreen()
+        self.window().setWindowTitle(filmDetail.title)
+        filmDetail.onStart()
+        self.main.addWidget(filmDetail)
+        """
         return super().onStart()
 
     def onSearchButtonClicked(self):

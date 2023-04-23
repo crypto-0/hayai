@@ -87,3 +87,28 @@ QScreen QScreen QFrame {
   border: None;
   background-color: transparent;
 }
+
+
+QFilmDescription QPushButton, QFilmDescription QLabel {
+  color: #7c859E;
+  font-size: 16px;
+  text-align: left;
+  background-color: transparent;
+}
+
+
+QFilmDetail #title{
+  font-size: 20px;
+  color: #7c859E
+
+}
+
+QFilmDetail QPushButton {
+  border: 1px solid #7c859E;
+  border-radius: 4px;
+}
+
+QFilmDetail #QGenresLabel, QFilmDetail #QCountryLabel, QFilmDetail #QRuntimeLabel, QFilmDetail #QDetailsLabel{
+  color: #7c859E;
+  font-size: 16px;
+}

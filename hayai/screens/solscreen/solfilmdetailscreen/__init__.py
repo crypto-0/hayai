@@ -1,0 +1,1 @@
+from .solfilmdetailscreen import QSolFilmDetailScreen

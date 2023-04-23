@@ -1,0 +1,1 @@
+from .filmdetailitemmodel import QFilmInfoItemModel

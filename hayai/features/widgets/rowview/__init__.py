@@ -1,0 +1,1 @@
+from .rowviewwidget import QRowView

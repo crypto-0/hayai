@@ -1,1 +1,0 @@
-from .overviewwidget import QOverview

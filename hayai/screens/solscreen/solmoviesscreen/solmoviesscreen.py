@@ -3,9 +3,9 @@ from PyQt6.QtWidgets import   QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 from typing import Optional 
 
-from hayai.delegates.filmdelegate import QFilmDelegate
-from hayai.widgets.autofitview import QAutoFitView
-from hayai.viewmodels.solviewmodels import QSolMoviesViewModel
+from hayai.features.provider.delegates.filmdelegate import QFilmDelegate
+from hayai.features.widgets.autofitview import QAutoFitView
+from hayai.features.sol.viewmodels import QSolMoviesViewModel
 from ...screen import QScreen
 
 class QSolMoviesScreen(QScreen):

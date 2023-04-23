@@ -1,1 +1,0 @@
-from .filmrowwidget import QFilmRow

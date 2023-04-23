@@ -1,0 +1,1 @@
+from .solfilmdetailviewmodel import QSolFilmDetailViewModel

@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import  Qt, pyqtSignal
 from hayai.screens.solscreen import  QSolScreen
-from hayai.widgets.titlebar import QStandardTitleBar
+from hayai.features.widgets.titlebar import QStandardTitleBar
 
 class QHayai(QMainWindow):
 

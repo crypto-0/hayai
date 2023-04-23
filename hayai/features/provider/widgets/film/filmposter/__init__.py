@@ -1,0 +1,1 @@
+from .filmposterwidget import QFilmPoster

@@ -7,8 +7,9 @@ from PyQt6.QtWidgets import QFrame, QHBoxLayout, QScrollArea, QSizePolicy, QVBox
 from PyQt6.QtWidgets import QWidget
 
 from ...screen import QScreen
-from hayai.viewmodels.solviewmodels import QSolHomeViewModel
-from hayai.widgets.filmrow import QFilmRow
+from hayai.features.sol.viewmodels import QSolHomeViewModel
+from hayai.features.provider.delegates.filmdelegate import QFilmDelegate
+from hayai.features.widgets.rowview import  QRowView
 
 
 class QSolHomeScreen(QScreen):
@@ -31,11 +32,11 @@ class QSolHomeScreen(QScreen):
         scrollArea.setWidgetResizable(True)
         scrollArea.setContentsMargins(0,0,0,0)
 
-        trendingMoviesRow: QFilmRow = QFilmRow("trending movies",self._homeViewModel.trendingMovies)
-        trendingShowsRow: QFilmRow = QFilmRow("trending shows",self._homeViewModel.trendingShows)
-        latestMoviesRow: QFilmRow = QFilmRow("latest movies",self._homeViewModel.latestMovies)
-        latestShowsRow: QFilmRow = QFilmRow("latest shows",self._homeViewModel.latestShows)
-        comingSoonRow: QFilmRow = QFilmRow("coming soon",self._homeViewModel.comingSoon)
+        trendingMoviesRow: QRowView = QRowView("trending movies",self._homeViewModel.trendingMovies,QFilmDelegate())
+        trendingShowsRow: QRowView = QRowView("trending shows",self._homeViewModel.trendingShows,QFilmDelegate())
+        latestMoviesRow: QRowView = QRowView("latest movies",self._homeViewModel.latestMovies,QFilmDelegate())
+        latestShowsRow: QRowView = QRowView("latest shows",self._homeViewModel.latestShows,QFilmDelegate())
+        comingSoonRow: QRowView = QRowView("coming soon",self._homeViewModel.comingSoon,QFilmDelegate())
 
         self.started.connect(self._homeViewModel.loadHome)
 

@@ -1,1 +1,0 @@
-from .detailwidget import QDetail

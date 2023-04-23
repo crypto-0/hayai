@@ -1,0 +1,1 @@
+from .solsidebar import QSolSidebar
