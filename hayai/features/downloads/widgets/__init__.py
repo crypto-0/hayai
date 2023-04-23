@@ -1,1 +1,0 @@
-from .downloadwidget import QDownload

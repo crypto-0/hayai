@@ -1,0 +1,89 @@
+QMainWindow {
+    color: red;
+    background-color:black;
+}
+
+QSolSidebar {
+  /*background-color: #1a161f;*/
+  background-color: inherit;
+  border-right: 1px solid #1a161f;
+}
+
+QGroupBox{
+  font-size: 16px;
+  color: #7c859E;
+  text-transform: uppercase;
+  border: 0;
+  padding-top: 25px;
+}
+
+QGroupBox::title {
+  subcontrol-position: top left;
+}
+
+QGroupBox QPushButton {
+  color: #a1acbc;
+  font-size: 18px;
+  background-color: None;
+  text-align: left;
+}
+
+QGroupBox QPushButton:checked::indicator {
+  background-color: transparent;
+}
+
+QGroupBox QPushButton:hover {
+  color: white;
+}
+
+/* Settings for the scroll bar */
+QScrollBar {
+  width: 10px;
+  margin: 0px 0px 0px 0px;
+  background-color: #7c859E;
+}
+
+QScrollBar::handle {
+  min-height: 50px;
+  max-height: 50px;
+  border-bottom: 0px;
+
+}
+
+QScrollBar::add-line {
+  height: 0px;
+  subcontrol-position: bottom;
+  subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line {
+  height: 0px;
+  subcontrol-position: top;
+  subcontrol-origin: margin;
+}
+
+/* Settings for the scroll area */
+QScrollArea {
+  border: none;
+  background-color: transparent;
+}
+
+QScrollArea QFrame {
+  background-color: transparent;
+}
+
+QTitleNavbar QPushButton{
+  font-size: 18px;
+  color: #7c859E;
+  border: 0px;
+}
+QTitleNavbar QLabel{
+  font-size: 18px;
+  color: #7c859E;
+  border: 0px;
+}
+
+QScreen QScreen QFrame {
+  border: None;
+  background-color: transparent;
+}

@@ -1,0 +1,1 @@
+from .solmoviesviewmodel import QSolMoviesViewModel

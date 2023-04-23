@@ -1,1 +1,0 @@
-from .qprovider import QProvider

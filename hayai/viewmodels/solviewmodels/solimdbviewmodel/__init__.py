@@ -1,0 +1,1 @@
+from .solimdbviewmodel import QSolImdbViewModel

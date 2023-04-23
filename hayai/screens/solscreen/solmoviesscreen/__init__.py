@@ -1,0 +1,1 @@
+from .solmoviesscreen import QSolMoviesScreen

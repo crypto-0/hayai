@@ -1,1 +1,0 @@
-from .navwidget import QNav

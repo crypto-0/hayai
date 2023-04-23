@@ -1,1 +1,0 @@
-from .seasonlistmodel import SeasonListModel

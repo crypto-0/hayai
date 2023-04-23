@@ -1,1 +1,0 @@
-from .sidebarwidget import QSidebar

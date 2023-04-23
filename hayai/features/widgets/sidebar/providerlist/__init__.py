@@ -1,1 +1,0 @@
-from .providerlistwidget import QProviderList
