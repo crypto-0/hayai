@@ -1,10 +1,11 @@
 
 from typing import Optional
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QFrame, QLabel, QPushButton, QVBoxLayout, QWidget
 from PyQt6.QtCore import pyqtProperty #pyright: ignore
 
 class QFilmDescription(QFrame):
+    playButtonClicked: pyqtSignal = pyqtSignal()
 
     def __init__(self,parent: Optional[QWidget] = None):
         super().__init__(parent = parent)
@@ -25,6 +26,8 @@ class QFilmDescription(QFrame):
         self._playButton: QPushButton = QPushButton("Play")
         self._playButton.setFixedSize(100,20)
 
+        self._playButton.clicked.connect(self.playButtonClicked)
+
         descriptionLayout: QVBoxLayout = QVBoxLayout()
         descriptionLayout.addWidget(self._titleLabel)
         descriptionLayout.addWidget(self._extraDetailLabel)
@@ -41,12 +44,5 @@ class QFilmDescription(QFrame):
     @property
     def descriptionLabel(self):#pyright: ignore
         return self._descriptionLabel
-
-    def updateDescription(self,title: str,description: str, extra: str):
-        self._titleLabel.setText(title)
-        self._descriptionLabel.setText(description)
-        self._extraDetailLabel.setText(extra)
-
-
 
 

@@ -1,0 +1,19 @@
+QServersMenu{
+  background-color:#7c859E;
+  background-color:rgba(25,25,25,.3);
+}
+QServersMenu::item, QServersMenu QLabel{
+  color: #a1acbc;
+  font-size: 20px;
+  padding-left:20px;
+}
+QServersMenu::item:selected { 
+  color:white;
+}
+QMenu::separator {
+  background-color:rgba(25,25,25,.9);
+  height: 2px;
+  margin-left: 10px;
+  margin-right: 5px;
+}
+

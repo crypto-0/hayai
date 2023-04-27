@@ -1,0 +1,1 @@
+from .vidcloud import QVidcloud

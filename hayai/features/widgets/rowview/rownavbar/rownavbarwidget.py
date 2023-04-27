@@ -35,4 +35,3 @@ class QRowNavbar(QFrame):
         titleNavBarLayout.setContentsMargins(0,0,0,0)
         titleNavBarLayout.setSpacing(5)
         self.setLayout(titleNavBarLayout)
-        self.setObjectName("QTitleNavbar")

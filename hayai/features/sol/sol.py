@@ -1,12 +1,16 @@
-from PyQt6.QtCore import QUrl, pyqtSignal, pyqtSlot
+import json
+from PyQt6.QtCore import QEventLoop, QUrl, pyqtSignal, pyqtSlot
 from PyQt6.QtNetwork import QNetworkReply, QNetworkRequest
 from ..provider import *
-from typing import List, Optional 
+from ..provider.extractors.upcloud import QUpCloud
+from ..provider.extractors.vidcloud import QVidcloud
+from ..provider.extractors.videoextractor import VideoContainer,QVideoExtractor
+from typing import Dict, List, Optional 
 import requests
 import lxml.html
 
 class QSol(QProvider):
-    _host_url: str = "https://solarmovie.pe"
+    _hostUrl: str = "https://solarmovie.pe"
     seasonsLoaded: pyqtSignal = pyqtSignal(list)
     episodesLoaded: pyqtSignal = pyqtSignal(list)
     movieServersLoaded: pyqtSignal = pyqtSignal(list)
@@ -20,14 +24,24 @@ class QSol(QProvider):
     showsLoaded: pyqtSignal = pyqtSignal(Page)
     imdbLoaded: pyqtSignal = pyqtSignal(Page)
     filmInfoLoaded: pyqtSignal = pyqtSignal(FilmInfo)
+    videoLoaded: pyqtSignal = pyqtSignal(VideoContainer)
 
     def __init__(self,parent: Optional[QObject] = None) -> None:
         super().__init__(parent=parent)
-
+        upcloud: QUpCloud = QUpCloud(self)
+        vidcloud: QVidcloud = QVidcloud(self)
+        upcloud.videoLoaded.connect(self.videoLoaded)
+        vidcloud.videoLoaded.connect(self.videoLoaded)
+        self._extractors: Dict[str,QVideoExtractor] = {
+                "Server UpCloud": upcloud,
+                "UpCloud": upcloud,
+                "Server Vidcloud": vidcloud,
+                "Vidcloud": vidcloud
+                }
 
     @pyqtSlot(str)
     def loadMovieServers(self,movieId: str) -> None:
-        movieServerUrl : str = f"{self._host_url}/ajax/movie/episodes/{movieId}"
+        movieServerUrl : str = f"{self._hostUrl}/ajax/movie/episodes/{movieId}"
         request: QNetworkRequest = QNetworkRequest(QUrl(movieServerUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.finished.connect(self.movieServersReplyFinished)
@@ -47,13 +61,10 @@ class QSol(QProvider):
             self.movieServersLoaded.emit(servers)
             reply.deleteLater()
 
-    @pyqtSlot(str)
-    def loadServerLink(self,serverId: str):
-        pass
 
     @pyqtSlot(str)
     def loadSeasons(self,showId: str) -> None:
-        seasonUrl: str = f"{self._host_url}/ajax/v2/tv/seasons/{showId}"
+        seasonUrl: str = f"{self._hostUrl}/ajax/v2/tv/seasons/{showId}"
         request: QNetworkRequest = QNetworkRequest(QUrl(seasonUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.finished.connect(self.seasonsReplyFinished)
@@ -76,7 +87,7 @@ class QSol(QProvider):
 
     @pyqtSlot(str)
     def loadEpisodes(self,seasonId: str) -> None:
-        episodesUrl: str = f"{self._host_url}/ajax/v2/season/episodes/{seasonId}"
+        episodesUrl: str = f"{self._hostUrl}/ajax/v2/season/episodes/{seasonId}"
         request: QNetworkRequest = QNetworkRequest(QUrl(episodesUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.finished.connect(self.episodesReplyFinished)
@@ -100,7 +111,7 @@ class QSol(QProvider):
 
     @pyqtSlot(str)
     def loadEpisodeServers(self,seasonId: str) -> None:
-        episodeServersUrl : str = f"{self._host_url}/ajax/v2/episode/servers/{seasonId}"
+        episodeServersUrl : str = f"{self._hostUrl}/ajax/v2/episode/servers/{seasonId}"
         request: QNetworkRequest = QNetworkRequest(QUrl(episodeServersUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.finished.connect(self.episodeServersReplyFinished)
@@ -120,9 +131,30 @@ class QSol(QProvider):
             self.episodeServersLoaded.emit(servers)
             reply.deleteLater()
 
+    @pyqtSlot(str)
+    def loadVideo(self,server: VideoServer):
+        serverEmbedUrl: str = f"{self._hostUrl}/ajax/get_link/{server.serverId}"
+        loop: QEventLoop = QEventLoop(self)
+        request: QNetworkRequest = QNetworkRequest(QUrl(serverEmbedUrl))
+        reply: QNetworkReply = self.networkAccessManager.get(request)
+        reply.finished.connect(loop.quit)
+        loop.exec()
+        if reply.error() == QNetworkReply.NetworkError.NoError:
+            response: str = reply.readAll().data().decode()
+            responseAsJson = json.loads(response)
+            embed: str = responseAsJson["link"]
+            extractor: Optional[QVideoExtractor] = self._extractors.get(server.name)
+            if extractor is not None:
+                extractor.extract(embed)
+            else:
+                self.videoLoaded.emit(VideoContainer([],[]))
+        else:
+            print("servers extraction failed")
+            self.videoLoaded.emit(VideoContainer([],[]))
+
     @pyqtSlot()
     def loadHome(self):
-        homeUrl: str = f"{self._host_url}/home"
+        homeUrl: str = f"{self._hostUrl}/home"
         request: QNetworkRequest = QNetworkRequest(QUrl(homeUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.finished.connect(self.homeReplyFinished)
@@ -153,7 +185,7 @@ class QSol(QProvider):
 
     @pyqtSlot(int)
     def loadMovies(self,pageNumber: int):
-        moviesUrl: str = f"{self._host_url}/movie?page={pageNumber}"
+        moviesUrl: str = f"{self._hostUrl}/movie?page={pageNumber}"
         request: QNetworkRequest = QNetworkRequest(QUrl(moviesUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.setProperty("category","movies")
@@ -161,7 +193,7 @@ class QSol(QProvider):
 
     @pyqtSlot(int)
     def loadShows(self,pageNumber: int):
-        showsUrl: str = f"{self._host_url}/tv-show?page={pageNumber}"
+        showsUrl: str = f"{self._hostUrl}/tv-show?page={pageNumber}"
         request: QNetworkRequest = QNetworkRequest(QUrl(showsUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.setProperty("category","shows")
@@ -169,7 +201,7 @@ class QSol(QProvider):
 
     @pyqtSlot(int)
     def loadImdb(self,pageNumber: int):
-        imdbUrl: str = f"{self._host_url}/top-imdb?page={pageNumber}"
+        imdbUrl: str = f"{self._hostUrl}/top-imdb?page={pageNumber}"
         request: QNetworkRequest = QNetworkRequest(QUrl(imdbUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.setProperty("category","imdb")
@@ -237,7 +269,7 @@ class QSol(QProvider):
 
     def search(self,query: str,page_number) -> Page:
         query = query.strip().replace(" ","-")
-        search_url: str = f"{self._host_url}/search/{query}"
+        search_url: str = f"{self._hostUrl}/search/{query}"
         try:
             r: requests.Response = requests.get(f"{search_url}?page={page_number}",headers=self._headers)
             r.raise_for_status()
@@ -284,13 +316,5 @@ class QSol(QProvider):
         extra_details = extra_details.strip("  .  ")
         is_tv: bool = True if film_info_tags[-1].text == "TV" else False
 
-        return Film(title,self._host_url + link,is_tv,posterUrl=poster_url,extra= extra_details)
+        return Film(title,self._hostUrl + link,is_tv,posterUrl=poster_url,extra= extra_details)
 
-    def get_poster_image(self, url: str) -> bytes:
-        try:
-            r: requests.Response = requests.get(url,headers=self._headers)
-            r.raise_for_status()
-            poster_data  = r.content
-            return poster_data
-        except:
-            return bytes()

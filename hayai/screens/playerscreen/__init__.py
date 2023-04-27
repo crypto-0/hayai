@@ -1,0 +1,1 @@
+from .playerscreen import QPlayer

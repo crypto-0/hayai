@@ -9,13 +9,29 @@ class QEpisodeListModel(QAbstractListModel):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent=parent)
         self._episodes: List[Episode] = []
-        self._defaultThumbnail: QIcon = QIcon("hayai/features/film/models/episodelist/assets/icons/no-image.svg")
+        self._defaultThumbnail: QIcon = QIcon("hayai/features/provider/models/episodelist/assets/icons/no-image.svg")
 
     def rowCount(self, parent = QModelIndex()):
         return len(self._episodes)
 
     def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return 4
+
+    def hasIndex(self, row: int, column: int, parent: QModelIndex = ...) -> bool:
+        if parent.isValid() or row < 0 or row >= self.rowCount() or column < 0 or column >= self.columnCount():
+            return False
+        
+        return True
+
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()) -> QModelIndex:
+        if self.hasIndex(row,column=column,parent=parent):
+            return self.createIndex(row, column)
+        return QModelIndex()
+
+    def sibling(self, row: int, column: int, idx: QModelIndex) -> QModelIndex:
+        if idx.row() == row:
+            return self.index(row,column)
+        return QModelIndex()
 
     def data(self, index: QModelIndex, role = Qt.ItemDataRole.DisplayRole): 
         if not index.isValid():

@@ -33,7 +33,6 @@ class QAutoFitView(QListView):
         self.currentIconSize: QSize = self.iconSize()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.resize(QSize(0,0))
-        self.setObjectName("QAutoFitView")
 
     def sizeHint(self) -> QSize:
         size: QSize = super().sizeHint()

@@ -39,6 +39,11 @@ class QSolHomeScreen(QScreen):
         comingSoonRow: QRowView = QRowView("coming soon",self._homeViewModel.comingSoon,QFilmDelegate())
 
         self.started.connect(self._homeViewModel.loadHome)
+        trendingMoviesRow.itemClicked.connect(self.filmClicked)
+        trendingShowsRow.itemClicked.connect(self.filmClicked)
+        latestMoviesRow.itemClicked.connect(self.filmClicked)
+        latestShowsRow.itemClicked.connect(self.filmClicked)
+        comingSoonRow.itemClicked.connect(self.filmClicked)
 
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         scrollAreaFrameLayout.addWidget(trendingMoviesRow)

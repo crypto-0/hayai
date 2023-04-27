@@ -26,6 +26,10 @@ class QSeasonListModel(QAbstractListModel):
             return self.createIndex(row, column)
         return QModelIndex()
 
+    def sibling(self, row: int, column: int, idx: QModelIndex) -> QModelIndex:
+        if idx.row() == row:
+            return self.index(row,column)
+        return QModelIndex()
 
     def data(self, index: QModelIndex, role = Qt.ItemDataRole.DisplayRole): 
         if not index.isValid():

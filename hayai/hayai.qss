@@ -1,6 +1,6 @@
 QMainWindow {
-    color: red;
-    background-color:black;
+  color: red;
+  background-color:black;
 }
 
 QSolSidebar {
@@ -43,10 +43,15 @@ QScrollBar {
   background-color: #7c859E;
 }
 
+QScrollBar::add-page, QScrollBar::sub-page{
+  background-color: #7c859E;
+}
+
 QScrollBar::handle {
   min-height: 50px;
   max-height: 50px;
   border-bottom: 0px;
+  background-color:rgba(25,25,25,.3);
 
 }
 
@@ -72,12 +77,12 @@ QScrollArea QFrame {
   background-color: transparent;
 }
 
-QTitleNavbar QPushButton{
+QRowNavbar QPushButton{
   font-size: 18px;
   color: #7c859E;
   border: 0px;
 }
-QTitleNavbar QLabel{
+QRowNavbar QLabel{
   font-size: 18px;
   color: #7c859E;
   border: 0px;
@@ -93,14 +98,14 @@ QFilmDescription QPushButton, QFilmDescription QLabel {
   color: #7c859E;
   font-size: 16px;
   text-align: left;
-  background-color: transparent;
 }
-
-
-QFilmDetail #title{
-  font-size: 20px;
-  color: #7c859E
-
+QFilmDescription QPushButton{
+  background-color: transparent;
+  border: 1px solid #7c859E;
+  border-radius:2px;
+}
+QFilmDescription QPushButton:hover{
+  color:white;
 }
 
 QFilmDetail QPushButton {
@@ -111,4 +116,58 @@ QFilmDetail QPushButton {
 QFilmDetail #QGenresLabel, QFilmDetail #QCountryLabel, QFilmDetail #QRuntimeLabel, QFilmDetail #QDetailsLabel{
   color: #7c859E;
   font-size: 16px;
+}
+QComboBox{
+  /*border: 1px solid #7c859E;*/
+  border: none;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #a1acbc;
+  background-color:#7c859E;
+}
+
+
+QAutoFitView::item {
+  color: #a1acbc;
+  outline: none;
+}
+QComboBox QAbstractItemView {
+  border: 1px solid #7c859E;
+  color: #a1acbc;
+  background-color: yellow;
+}
+QComboBox QAbstractItemView::item:hover{
+  background-color:#7c859E;
+}
+QComboBox QAbstractItemView::item:selected{
+  background-color:#7c859E;
+}
+QMenu{
+  background-color: black;
+  color: #a1acbc;
+}
+
+QPlayer QPushButton{
+  background-color: None;
+  border: None;
+}
+QPlayer QLabel {
+  color: #a1acbc;
+}
+
+QSlider::groove:horizontal {
+  height: 2px; 
+  margin: 2px 0;
+  border-radius: 5px;
+  background-color:#a1acbc;
+}
+
+QSlider::handle:horizontal {
+  background-color:#7c859E;
+  width: 15px;
+  border-radius:15px;
+  margin: -2px 0; 
+}
+QSlider::sub-page{
+  background-color:none;
 }

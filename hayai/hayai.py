@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMainWindow,
 )
-from PyQt6.QtCore import  Qt, pyqtSignal
+from PyQt6.QtCore import  Qt, pyqtSignal, qInstallMessageHandler
 from hayai.screens.solscreen import  QSolScreen
 from hayai.features.widgets.titlebar import QStandardTitleBar
 
@@ -28,11 +28,16 @@ class QHayai(QMainWindow):
         self.setWindowTitle("Hayai")
         self.statusBar()
         self.loadStylesheet()
+        qInstallMessageHandler(self.handler)
 
     def onStart(self):
         self.started.emit()
 
+    def handler(self,msgType,context,string):
+        pass
     def loadStylesheet(self):
         with open("hayai/hayai.qss","r") as f:
             self.setStyleSheet(f.read())
+
+
 
