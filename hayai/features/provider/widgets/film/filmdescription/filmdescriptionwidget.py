@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import QFrame, QLabel, QPushButton, QVBoxLayout, QWidget
 from PyQt6.QtCore import pyqtProperty #pyright: ignore
 
 class QFilmDescription(QFrame):
-    playButtonClicked: pyqtSignal = pyqtSignal()
 
     def __init__(self,parent: Optional[QWidget] = None):
         super().__init__(parent = parent)
@@ -27,8 +26,6 @@ class QFilmDescription(QFrame):
         self._playButton: QPushButton = QPushButton("Play")
         self._playButton.setFixedSize(100,20)
 
-        self._playButton.clicked.connect(self.playButtonClicked)
-
         descriptionLayout: QVBoxLayout = QVBoxLayout()
         descriptionLayout.addWidget(self._titleLabel)
         descriptionLayout.addWidget(self._extraDetailLabel)
@@ -37,6 +34,10 @@ class QFilmDescription(QFrame):
         descriptionLayout.setContentsMargins(0,0,0,0)
         descriptionLayout.setSpacing(20)
         self.setLayout(descriptionLayout)
+
+    @property
+    def playButton(self):
+        return self._playButton
 
     @property
     def titleLabel(self):#pyright: ignore

@@ -219,7 +219,7 @@ class QSol(QProvider):
 
     def search(self,query: str,pageNumber):
         query = query.strip().replace(" ","-")
-        searchUrl: str = f"{self._hostUrl}/search/{query}?page=pageNumber"
+        searchUrl: str = f"{self._hostUrl}/search/{query}?page={pageNumber}"
         request: QNetworkRequest = QNetworkRequest(QUrl(searchUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
         reply.setProperty("endpoint","search")

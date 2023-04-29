@@ -90,6 +90,8 @@ class QSolFilmDetailScreen(QScreen):
         self._episodeView.clicked.connect(self.onEpisodeClicked)
         self._recommendationRow.itemClicked.connect(self.onFilmClicked)
         self._filmDetailViewModel.videoLoaded.connect(self.videoLoaded)
+        filmDescription.playButton.clicked.connect(self._filmDetailViewModel.loadServers)
+        
 
         leftFrameLayout: QVBoxLayout = QVBoxLayout()
         leftFrameLayout.addWidget(self.poster)

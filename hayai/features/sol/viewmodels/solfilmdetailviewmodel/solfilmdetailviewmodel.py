@@ -30,6 +30,7 @@ class QSolFilmDetailViewModel(QObject):
         self._sol.episodesLoaded.connect(self.episodesLoaded)
         self._sol.seasonsLoaded.connect(self.seasonsLoaded)
         self._sol.episodeServersLoaded.connect(self.serversLoaded)
+        self._sol.movieServersLoaded.connect(self.serversLoaded)
         self._sol.videoLoaded.connect(self.videoLoaded)
         self._servers: Dict[str,VideoServer] = {}
 
@@ -92,18 +93,19 @@ class QSolFilmDetailViewModel(QObject):
             self._episodes.appendRow(*episodes)
         self.episodesLoadingFinished.emit()
 
-    def loadServers(self,episodeRow: int):
+    def loadServers(self,row: int = 0):
         if self._loadingServers: return
         filmUrlSplit = self._filmUrl.rsplit("/",2)
         if len(filmUrlSplit) < 1:
             return
         if  filmUrlSplit[-2] == "tv":
-            index: QModelIndex = self._episodes.index(episodeRow,3)
+            index: QModelIndex = self._episodes.index(row,3)
             episodeId: Any = self._episodes.data(index)
             if isinstance(episodeId,str):
                 self._sol.loadEpisodeServers(episodeId)
         else:
             movieId: str = filmUrlSplit[-1].rsplit("-",1)[-1]
+            self._sol.loadMovieServers(movieId)
 
     def loadVideo(self,server: VideoServer):
         self._sol.loadVideo(server)

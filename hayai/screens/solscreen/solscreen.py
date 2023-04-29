@@ -10,6 +10,7 @@ from .solhomescreen import QSolHomeScreen
 from .solimdbscreen import QSolImdbScreen
 from .solmoviesscreen import QSolMoviesScreen
 from .solshowsscreen import QSolShowsScreen
+from .solsearchscreen import QSolSearchScreen
 
 
 class QSolScreen(QScreen,IScreenNavigation):
@@ -77,5 +78,9 @@ class QSolScreen(QScreen,IScreenNavigation):
             self.push(screen)
         if button.text().lower() == "imdb" and not isinstance(currentScreen,QSolImdbScreen):
             screen: QScreen = QSolImdbScreen()
+            self.push(screen)
+
+        if button.text().lower() == "search" and not isinstance(currentScreen,QSolSearchScreen):
+            screen: QScreen = QSolSearchScreen()
             self.push(screen)
 

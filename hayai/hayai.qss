@@ -180,3 +180,24 @@ QSlider::handle:horizontal {
 QSlider::sub-page{
   background-color:none;
 }
+
+/* Settings for the searchbar */
+QSearchbar QLineEdit {
+  border: none;
+  font-size: 14px;
+  background-color: transparent;
+  color: #a1acbc;
+}
+
+QSearchbar QPushButton {
+  border: none;
+  color: #a1acbc;
+}
+QSearchbar QPushButton:hover {
+  color: white;
+}
+QSearchbar{
+  border: 1px solid #7c859e;
+  border-radius: 5px;
+  background-color: #1a161f;
+}
