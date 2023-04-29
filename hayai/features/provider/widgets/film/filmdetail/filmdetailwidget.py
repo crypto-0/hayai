@@ -17,17 +17,17 @@ class QFilmDetail(QFrame):
         genresFrame: QFrame = QFrame()
         genresLabel: QLabel = QLabel("Genres")
         genresLabel.setObjectName("QGenresLabel")
-        self.genresContentLabel: QLabel = QLabel()
+        self._genresContentLabel: QLabel = QLabel()
 
         countryFrame: QFrame = QFrame()
         countryLabel: QLabel = QLabel("Country")
         countryLabel.setObjectName("QCountryLabel")
-        self.countryContentLabel: QLabel = QLabel()
+        self._countryContentLabel: QLabel = QLabel()
 
         runtimeFrame: QFrame = QFrame()
         runtimeLabel: QLabel = QLabel("Runtime")
         runtimeLabel.setObjectName("QRuntimeLabel")
-        self.runtimeContentLabel: QLabel = QLabel()
+        self._runtimeContentLabel: QLabel = QLabel()
 
         detailsFrameLayout: QHBoxLayout = QHBoxLayout()
         detailsFrameLayout.addWidget(detailsLabel)
@@ -37,7 +37,7 @@ class QFilmDetail(QFrame):
 
         genresFrameLayout: QHBoxLayout = QHBoxLayout()
         genresFrameLayout.addWidget(genresLabel)
-        genresFrameLayout.addWidget(self.genresContentLabel)
+        genresFrameLayout.addWidget(self._genresContentLabel)
         genresFrameLayout.setContentsMargins(0,0,0,0)
         genresFrameLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         genresFrameLayout.setSpacing(33)
@@ -45,7 +45,7 @@ class QFilmDetail(QFrame):
 
         countryFrameLayout: QHBoxLayout = QHBoxLayout()
         countryFrameLayout.addWidget(countryLabel)
-        countryFrameLayout.addWidget(self.countryContentLabel)
+        countryFrameLayout.addWidget(self._countryContentLabel)
         countryFrameLayout.setContentsMargins(0,0,0,0)
         countryFrameLayout.setSpacing(26)
         countryFrameLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -53,10 +53,10 @@ class QFilmDetail(QFrame):
 
         runtimeFrameLayout: QHBoxLayout = QHBoxLayout()
         runtimeFrameLayout.addWidget(runtimeLabel)
-        runtimeFrameLayout.addWidget(self.runtimeContentLabel)
+        runtimeFrameLayout.addWidget(self._runtimeContentLabel)
         runtimeFrameLayout.setContentsMargins(0,0,0,0)
         runtimeFrameLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        runtimeFrameLayout.setSpacing(19)
+        runtimeFrameLayout.setSpacing(20)
         runtimeFrame.setLayout(runtimeFrameLayout)
 
         detailsLayout: QVBoxLayout = QVBoxLayout()
@@ -69,12 +69,15 @@ class QFilmDetail(QFrame):
 
         self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
 
-    @pyqtProperty(str)
-    def filmGenres(self,genres: str):
-        pass
-    def updateDetail(self,genres: str, country: str, runtime: str):
-        self.genresContentLabel.setText(genres)
-        self.countryContentLabel.setText(country)
-        self.runtimeContentLabel.setText(runtime)
+    @property
+    def genresContentLabel(self):
+        return self._genresContentLabel
         
+    @property
+    def runtimeContentLabel(self):
+        return self._runtimeContentLabel
+
+    @property
+    def countryContentLabel(self):
+        return self._countryContentLabel
 

@@ -1,12 +1,11 @@
-
 from typing import Optional
 
-from PyQt6.QtCore import QModelIndex, Qt, pyqtSignal
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import QModelIndex, Qt
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QScrollArea, QSizePolicy, QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 
 from ...screen import QScreen
+from ..solfilmdetailscreen import QSolFilmDetailScreen
 from hayai.features.sol.viewmodels import QSolHomeViewModel
 from hayai.features.provider.delegates.filmdelegate import QFilmDelegate
 from hayai.features.widgets.rowview import  QRowView
@@ -14,7 +13,6 @@ from hayai.features.widgets.rowview import  QRowView
 
 class QSolHomeScreen(QScreen):
 
-    filmClicked: pyqtSignal = pyqtSignal(QModelIndex)
     def __init__(self, parent: Optional[QWidget] = None ) -> None:
         super().__init__(parent=parent)
         self._homeViewModel: QSolHomeViewModel = QSolHomeViewModel(self)
@@ -39,11 +37,11 @@ class QSolHomeScreen(QScreen):
         comingSoonRow: QRowView = QRowView("coming soon",self._homeViewModel.comingSoon,QFilmDelegate())
 
         self.started.connect(self._homeViewModel.loadHome)
-        trendingMoviesRow.itemClicked.connect(self.filmClicked)
-        trendingShowsRow.itemClicked.connect(self.filmClicked)
-        latestMoviesRow.itemClicked.connect(self.filmClicked)
-        latestShowsRow.itemClicked.connect(self.filmClicked)
-        comingSoonRow.itemClicked.connect(self.filmClicked)
+        trendingMoviesRow.itemClicked.connect(self.onFilmClicked)
+        trendingShowsRow.itemClicked.connect(self.onFilmClicked)
+        latestMoviesRow.itemClicked.connect(self.onFilmClicked)
+        latestShowsRow.itemClicked.connect(self.onFilmClicked)
+        comingSoonRow.itemClicked.connect(self.onFilmClicked)
 
         scrollAreaFrameLayout: QVBoxLayout = QVBoxLayout()
         scrollAreaFrameLayout.addWidget(trendingMoviesRow)
@@ -64,4 +62,10 @@ class QSolHomeScreen(QScreen):
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
         self.title = "Home"
+
+    def onFilmClicked(self,index: QModelIndex):
+        filmUrl: Optional[str] = index.siblingAtColumn(1).data()
+        if filmUrl is not None and self.navigation is not None:
+            screen: QScreen = QSolFilmDetailScreen(filmUrl)
+            self.navigation.push(screen)
 

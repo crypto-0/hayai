@@ -1,6 +1,6 @@
 from typing import Optional
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import QFrame, QPushButton, QGroupBox, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QAbstractButton, QButtonGroup, QFrame, QPushButton, QGroupBox, QVBoxLayout, QWidget
 from ....widgets.navbutton import QNavButton
 
 class QSolSidebar(QFrame):
@@ -10,6 +10,7 @@ class QSolSidebar(QFrame):
     showsButtonClicked: pyqtSignal = pyqtSignal()
     imdbButtonClicked: pyqtSignal = pyqtSignal()
     settingButtonClicked: pyqtSignal = pyqtSignal()
+    navButtonClicked: pyqtSignal = pyqtSignal(QAbstractButton)
 
     def __init__(self,parent: Optional[QWidget] = None):
         super().__init__(parent=parent)
@@ -26,6 +27,14 @@ class QSolSidebar(QFrame):
         showsButton: QPushButton = QNavButton("shows",f"{iconLocation}/tv show.png")
         imdbButton: QPushButton = QNavButton("imdb",f"{iconLocation}/top imdb.png")
         settingButton: QPushButton = QNavButton("setting",f"{iconLocation}/setting.png")
+
+        self.buttonGroup: QButtonGroup = QButtonGroup()
+        self.buttonGroup.addButton(searchButton)
+        self.buttonGroup.addButton(homeButton)
+        self.buttonGroup.addButton(moviesButton)
+        self.buttonGroup.addButton(showsButton)
+        self.buttonGroup.addButton(imdbButton)
+        self.buttonGroup.addButton(searchButton)
 
         menuGroupBoxLayout: QVBoxLayout = QVBoxLayout()
         menuGroupBoxLayout.addWidget(searchButton)
@@ -51,6 +60,7 @@ class QSolSidebar(QFrame):
         showsButton.clicked.connect(self.showsButtonClicked)
         imdbButton.clicked.connect(self.imdbButtonClicked)
         settingButton.clicked.connect(self.settingButtonClicked)
+        self.buttonGroup.buttonClicked.connect(self.navButtonClicked)
 
         sidebarLayout: QVBoxLayout = QVBoxLayout()
         sidebarLayout.addWidget(menuGroupBox)

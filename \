@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QFrame, QWidget
 from collections import deque
 from PyQt6.QtCore import pyqtSignal 
@@ -45,19 +45,20 @@ class QScreen(QFrame):
     def onDestroy(self):
         self.destroyed.emit()
 
-class IScreenNavigation(QObject):
+class IScreenNavigation(ABC):
 
-    def __init__(self,parent: Optional[QObject]):
-        super().__init__(parent=parent)
+    def __init__(self):
+        self.navigationStack: deque[QScreen] = deque()
 
     @abstractmethod
     def push(self,screen: QScreen):
-        raise NotImplemented
+        pass
 
     @abstractmethod
     def pop(self):
-        raise NotImplemented
+        pass
 
     @abstractmethod
     def popToRoot(self):
-        raise NotImplemented
+        pass
+

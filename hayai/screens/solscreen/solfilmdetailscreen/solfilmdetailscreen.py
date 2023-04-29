@@ -1,8 +1,6 @@
-
 from typing import List, Optional
 
-from PyQt6.QtCore import  QModelIndex, QPoint, Qt, pyqtSignal
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import  QModelIndex, QPoint, Qt
 from PyQt6.QtWidgets import (
     QComboBox,
     QDataWidgetMapper,
@@ -25,11 +23,10 @@ from hayai.features.widgets.autofitview  import QAutoFitView
 from hayai.features.widgets.rowview import QRowView
 
 from ...screen import QScreen
+from ...playerscreen import QPlayer
 
 class QSolFilmDetailScreen(QScreen):
 
-    filmClicked: pyqtSignal = pyqtSignal(QModelIndex)
-    playMedia: pyqtSignal = pyqtSignal(str)
     def __init__(self,filmUrl: str= "", parent: Optional[QWidget] = None ) -> None:
         super().__init__(parent=parent)
         self._filmDetailViewModel: QSolFilmDetailViewModel = QSolFilmDetailViewModel(filmUrl)
@@ -61,7 +58,10 @@ class QSolFilmDetailScreen(QScreen):
         self.widgetMapper.setModel(self._filmDetailViewModel.filmInfo)
         self.widgetMapper.addMapping(filmDescription.titleLabel,0,b"text") #pyright: ignore
         self.widgetMapper.addMapping(filmDescription.descriptionLabel,2,b"text") #pyright: ignore
-        self.widgetMapper.addMapping(self.poster,6,b"pixmap") #pyright: ignore
+        self.widgetMapper.addMapping(filmDetail.genresContentLabel,3,b"text") #pyright: ignore
+        self.widgetMapper.addMapping(filmDetail.countryContentLabel,4,b"text") #pyright: ignore
+        self.widgetMapper.addMapping(filmDetail.runtimeContentLabel,5,b"text") #pyright: ignore
+        self.widgetMapper.addMapping(self.poster,6,b"posterPixmap") #pyright: ignore
         self.widgetMapper.toFirst()
 
         self._seasonComboBox: QComboBox = QComboBox()
@@ -88,7 +88,7 @@ class QSolFilmDetailScreen(QScreen):
         self._filmDetailViewModel.episodesLoadingFinished.connect(self.episodesLoadingFinished)
         self._filmDetailViewModel.serversLoaded.connect(self.serversLoaded)
         self._episodeView.clicked.connect(self.onEpisodeClicked)
-        self._recommendationRow.itemClicked.connect(self.filmClicked)
+        self._recommendationRow.itemClicked.connect(self.onFilmClicked)
         self._filmDetailViewModel.videoLoaded.connect(self.videoLoaded)
 
         leftFrameLayout: QVBoxLayout = QVBoxLayout()
@@ -152,8 +152,11 @@ class QSolFilmDetailScreen(QScreen):
                 self._filmDetailViewModel.loadVideo(action.data())
 
     def videoLoaded(self,videoContainer: VideoContainer):
-        if len(videoContainer.videos) > 0:
-            self.playMedia.emit(videoContainer.videos[0].url)
+        if len(videoContainer.videos) > 0 and self.navigation is not None:
+            screen: QPlayer =  QPlayer(videoContainer.videos[0].url)
+            screen.stopped.connect(self.onPlayerScreenStopped)
+            self.navigation.push(screen)
+            
 
     def onSeasonComboboxIndexChange(self,index: int):
         self._filmDetailViewModel.loadEpisodes(index)
@@ -161,3 +164,11 @@ class QSolFilmDetailScreen(QScreen):
     def onEpisodeClicked(self,index: QModelIndex):
         self._filmDetailViewModel.loadServers(index.row())
 
+    def onFilmClicked(self,index: QModelIndex):
+        filmUrl: Optional[str] = index.siblingAtColumn(1).data()
+        if filmUrl is not None and self.navigation is not None:
+            screen: QScreen = QSolFilmDetailScreen(filmUrl)
+            self.navigation.push(screen)
+    def onPlayerScreenStopped(self):
+        if self.navigation:
+            self.navigation.pop()

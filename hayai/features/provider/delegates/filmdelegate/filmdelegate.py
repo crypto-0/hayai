@@ -26,7 +26,7 @@ class QFilmDelegate(QStyledItemDelegate):
         title = fontMetrics.elidedText(title, Qt.TextElideMode.ElideRight, titleRect.width()) 
         painter.drawText(titleRect,Qt.TextFlag.TextSingleLine,title) 
 
-        extraData: str = index.data(Qt.ItemDataRole.UserRole)
+        extraData: str = index.siblingAtColumn(3).data(Qt.ItemDataRole.DisplayRole)
         extraDataSize: QSize = fontMetrics.size(Qt.TextFlag.TextSingleLine, extraData) 
         extraDataRect: QRect = QRect(option.rect.x(),titleRect.bottom() + 5,option.rect.width(),extraDataSize.height())
         painter.setPen(QColor("white"))
@@ -39,7 +39,7 @@ class QFilmDelegate(QStyledItemDelegate):
         fontMetrics: QFontMetrics = option.fontMetrics
         title: str = index.data(Qt.ItemDataRole.DisplayRole)  
         titleSize: QSize = fontMetrics.size(Qt.TextFlag.TextSingleLine, title) 
-        extraData: str = index.data(Qt.ItemDataRole.UserRole)  
+        extraData: str = index.siblingAtColumn(3).data(Qt.ItemDataRole.DisplayRole)  
         extraDataSize: QSize = fontMetrics.size(Qt.TextFlag.TextSingleLine, extraData) 
         height: int = iconSize.height() + titleSize.height() + extraDataSize.height() + 10
         width: int = iconSize.width()

@@ -94,11 +94,17 @@ QScreen QScreen QFrame {
 }
 
 
-QFilmDescription QPushButton, QFilmDescription QLabel {
+QFilmDescription QPushButton, QFilmDescription #title {
   color: #7c859E;
   font-size: 16px;
   text-align: left;
 }
+QFilmDescription #description {
+  color: #a1acbc;
+  font-size: 16px;
+  text-align: left;
+}
+
 QFilmDescription QPushButton{
   background-color: transparent;
   border: 1px solid #7c859E;
@@ -111,6 +117,9 @@ QFilmDescription QPushButton:hover{
 QFilmDetail QPushButton {
   border: 1px solid #7c859E;
   border-radius: 4px;
+}
+QFilmDetail QLabel{
+  color: #a1acbc;
 }
 
 QFilmDetail #QGenresLabel, QFilmDetail #QCountryLabel, QFilmDetail #QRuntimeLabel, QFilmDetail #QDetailsLabel{

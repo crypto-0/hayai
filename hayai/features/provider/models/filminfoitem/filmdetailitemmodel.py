@@ -1,17 +1,22 @@
 from typing import Optional
-from PyQt6.QtCore import QAbstractItemModel, QModelIndex, Qt
-from PyQt6.QtGui import QColor, QIcon, QPixmap
+from PyQt6.QtCore import QAbstractItemModel, QModelIndex, QUrl, Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QPixmap
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import QWidget
 from ...provider import FilmInfo
 
 class QFilmInfoItemModel(QAbstractItemModel):
+    _abort: pyqtSignal = pyqtSignal()
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent=parent)
-        self._filmInfo: FilmInfo = FilmInfo(title="testing title",description="testing description Elliot and Beverly Mantle are twins who share everything: drugs, lovers, and an unapologetic desire to do whatever it takes — including pushing the boundaries on medical ethics — in an effort to challenge antiquated practices and bring women’s healthcare to the forefront.")
+        self._filmInfo: FilmInfo = FilmInfo()
         pixmap: QPixmap = QPixmap(600,int(600 * 1.5))
         pixmap.fill(QColor("#7c859E"))
         self._placeHolderPixmap: QPixmap = pixmap
+        self._posterPixmap: Optional[QPixmap] = None
+        self._networkAccessManager: QNetworkAccessManager = QNetworkAccessManager(self)
+        self._networkAccessManager.finished.connect(self._onPosterLoaded)
 
     def rowCount(self, parent = QModelIndex()):
         return 1
@@ -51,7 +56,7 @@ class QFilmInfoItemModel(QAbstractItemModel):
 
         if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
             if col == 0:
-                return self._filmInfo.title
+                return self._filmInfo.title.capitalize()
             if col == 1:
                 return self._filmInfo.release
             if col == 2:
@@ -63,6 +68,8 @@ class QFilmInfoItemModel(QAbstractItemModel):
             if col == 5:
                 return self._filmInfo.duration
             if col == 6:
+                if self._posterPixmap is not None:
+                    return self._posterPixmap
                 return self._placeHolderPixmap
         if role == Qt.ItemDataRole.DecorationRole:
             return self._placeHolderPixmap
@@ -70,7 +77,20 @@ class QFilmInfoItemModel(QAbstractItemModel):
         return None
 
     def setItem(self,filmInfo: FilmInfo):
+        self._abort.emit()
         self._filmInfo = filmInfo
-        self.dataChanged.emit(self.index(0,0),self.index(0,self.columnCount()-1),[])
+        request: QNetworkRequest = QNetworkRequest(QUrl(filmInfo.posterUrl))
+        reply: QNetworkReply = self._networkAccessManager.get(request)
+        self._abort.connect(reply.abort)
+        self.dataChanged.emit(self.index(0,0),self.index(0,self.columnCount()-2),[])
 
+    def _onPosterLoaded(self,reply: QNetworkReply):
+        if reply.error()  == QNetworkReply.NetworkError.NoError: 
+            data = reply.readAll().data()
+            pixmap: QPixmap = QPixmap()
+            pixmap.loadFromData(data) #pyright:ignore
+            self._posterPixmap = pixmap
+            index: QModelIndex = self.index(0,6)
+            self.dataChanged.emit(index,index, [Qt.ItemDataRole.DecorationRole])
+        reply.deleteLater()
 

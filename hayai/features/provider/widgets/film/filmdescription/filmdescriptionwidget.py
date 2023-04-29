@@ -18,6 +18,7 @@ class QFilmDescription(QFrame):
         self._extraDetailLabel: QLabel = QLabel()
 
         self._descriptionLabel: QLabel = QLabel()
+        self._descriptionLabel.setObjectName("description")
         self._descriptionLabel.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) 
         self._descriptionLabel.setFixedHeight(95)
         self._descriptionLabel.setMaximumWidth(600)
