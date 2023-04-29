@@ -2,5 +2,4 @@ lxml==4.9.2
 pycryptodomex==3.17
 PyQt6==6.5.0
 python_vlc==3.0.18122
-requests==2.28.2
 setuptools==67.5.1

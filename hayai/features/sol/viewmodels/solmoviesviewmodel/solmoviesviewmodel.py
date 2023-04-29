@@ -16,13 +16,13 @@ class QSolMoviesViewModel(QObject):
         self._moviesPageInfo: PageInfo = PageInfo(0,1,True)
 
         self._sol.moviesLoaded.connect(self.moviesLoaded)
-        self._movies.fetchMoreRequest.connect(self.loadMovies)
+        self._movies.fetchMoreRequest.connect(self.loadNext)
 
     @property
     def movies(self):
         return self._movies
 
-    def loadMovies(self):
+    def loadNext(self):
         if self._loadingMovies or not self._moviesPageInfo.hasNextPage:
             return
         self._loadingMovies = True
