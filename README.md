@@ -6,7 +6,7 @@
   <h3 align="center">HAYAI</h3>
 
   <p align="center">
-    An awesome Gui Application to download movies or shows !
+    An awesome Gui Application to stream movies or shows !
     <br />
     <a href="#demo">View Demo</a>
     ·
@@ -43,13 +43,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is movies or tv show gui downloader Application that will scrape solarmovie.pe and download movies and tv shows and is an alternative to using the commnad line version <a href="https://github.com/crypto-0/hayai-cli"> hayai-cli</a>
-
-Here's why I took on this challenge:
-* learn how to take designs of webpages or desktop Application and bring it to life with code.
-* learn how to apply the model view viewmodel  which is abit different with pyqt5
-* learn how to properly split my programs into multiple python packages and also follow a proper folder structure especially when it comes to QUI where breaking everything into smaller components in this case with pyqt5 widgets made it easier to program and test.
-* learn how to optimize code and speed up programs with multithreading while also properly managing it specificaly in this application fetching films and images in different backgrounds threads and doing lazy loading only fetching films or images when are needed improving speed, responsiveness and less data bandwidth usage.
+This is movies or tv show gui streaming Application that will scrape solarmovie.pe or other streaming websites in feature and stream movies or tv shows and is an alternative to using the commnad line version <a href="https://github.com/crypto-0/hayai-cli"> hayai-cli</a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -61,6 +55,7 @@ Here's why I took on this challenge:
 
 * python3
 * pip
+* vlc media player
 
 ### Installation
 ```sh
@@ -72,7 +67,6 @@ $ pip install .
 
 <!-- USAGE EXAMPLES -->
 ## What is planned
-* officialy finish implementing downloads
 * officialy finish implementing setting
 * Officialy add support for zoro and asianembed
 

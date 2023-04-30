@@ -28,7 +28,7 @@ class QHayai(QMainWindow):
         self.setWindowTitle("Hayai")
         self.statusBar()
         self.loadStylesheet()
-        qInstallMessageHandler(self.handler)
+        #qInstallMessageHandler(self.handler)
 
     def onStart(self):
         self.started.emit()

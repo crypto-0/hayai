@@ -66,7 +66,7 @@ class QFilmInfoItemModel(QAbstractItemModel):
             if col == 4:
                 return self._filmInfo.country
             if col == 5:
-                return self._filmInfo.duration
+                return self._filmInfo.duration + " min"
             if col == 6:
                 if self._posterPixmap is not None:
                     return self._posterPixmap

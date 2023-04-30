@@ -277,7 +277,10 @@ class QSol(QProvider):
             description = htmlDoc.cssselect(".description")[0].text_content()
             elements: lxml.html.HtmlElement = htmlDoc.cssselect(".row-line")
             release = elements[0].text_content().split("Released: ")[-1].strip()
-            genre: str = elements[1].cssselect("a")[0].text
+            genreElement: lxml.html.HtmlElement = elements[1].cssselect("a")
+            genre: str = "NA"
+            if genreElement:
+                genre = genreElement[0].text
             duration: str = elements[3].text_content().split("Duration: ")[-1].split()[0].strip()
             country: str = elements[4].cssselect("a")[0].text.strip()
             title = reply.request().url().url().split("watch-")[-1].split("-free")[0].replace("-"," ")

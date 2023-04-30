@@ -12,7 +12,6 @@ from .solmoviesscreen import QSolMoviesScreen
 from .solshowsscreen import QSolShowsScreen
 from .solsearchscreen import QSolSearchScreen
 
-
 class QSolScreen(QScreen,IScreenNavigation):
 
     def __init__(self,parent: Optional[QWidget] = None):
@@ -34,7 +33,6 @@ class QSolScreen(QScreen,IScreenNavigation):
         home: QSolHomeScreen = QSolHomeScreen()
         self.push(home)
         return super().onStart()
-
 
 
     def push(self, screen: QScreen):

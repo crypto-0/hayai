@@ -12,6 +12,7 @@ class QTitleBar(QFrame):
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.oldPosition: int = 0
         self.minBtn = MinimizeButton(parent=self)
         self.closeBtn = CloseButton(parent=self)
         self.maxBtn = MaximizeButton(parent=self)
