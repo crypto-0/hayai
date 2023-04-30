@@ -17,13 +17,19 @@ class QSolImdbViewModel(QObject):
         self._imdbPageInfo: PageInfo = PageInfo(0,1,True)
 
         self._sol.imdbLoaded.connect(self.imdbLoaded)
-        self._imdb.fetchMoreRequest.connect(self.loadnext)
+        self._imdb.fetchMoreRequest.connect(self.loadNext)
 
     @property
     def imdb(self):
         return self._imdb
 
-    def loadnext(self):
+    def loadImdb(self):
+        self._imdbPageInfo = PageInfo(0,1,True)
+        self._imdb.clear()
+        self._loadingImdb = False
+        self.loadNext()
+
+    def loadNext(self):
         if self._loadingImdb or not self._imdbPageInfo.hasNextPage:
             return
         self._loadingImdb = True

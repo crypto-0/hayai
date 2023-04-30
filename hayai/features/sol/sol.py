@@ -155,7 +155,6 @@ class QSol(QProvider):
             else:
                 self.videoLoaded.emit(VideoContainer([],[]))
         else:
-            print("servers extraction failed")
             self.videoLoaded.emit(VideoContainer([],[]))
 
     @pyqtSlot()
@@ -163,11 +162,11 @@ class QSol(QProvider):
         homeUrl: str = f"{self._hostUrl}/home"
         request: QNetworkRequest = QNetworkRequest(QUrl(homeUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
-        reply.finished.connect(self.homeEndpointReplyFinished)
+        reply.finished.connect(self.homeReplyFinished)
         self._abort.connect(reply.abort)
 
     @pyqtSlot()
-    def homeEndpointReplyFinished(self):
+    def homeReplyFinished(self):
         reply: QObject = self.sender()
         if isinstance(reply,QNetworkReply) and reply.error() == QNetworkReply.NetworkError.NoError:
             response: str = reply.readAll().data().decode()
@@ -178,11 +177,11 @@ class QSol(QProvider):
             latestMoviesFLWItems: List[lxml.html.HtmlElement] = sectionElements[0].cssselect(".flw-item" )
             latestShowsFLWItems: List[lxml.html.HtmlElement] = sectionElements[1].cssselect(".flw-item")
             comingSoonFLWItems: List[lxml.html.HtmlElement] = sectionElements[2].cssselect(".flw-item")
-            trendingMovies: List[Film] = list(map(self.extractFilmElement, trendingMoviesFLWItems))
-            trendingShows: List[Film] = list(map(self.extractFilmElement, trendingShowsFLWItems))
-            latestMovies: List[Film] = list(map(self.extractFilmElement, latestMoviesFLWItems))
-            latestShows: List[Film] = list(map(self.extractFilmElement, latestShowsFLWItems))
-            comingSoonFilms: List[Film] = list(map(self.extractFilmElement, comingSoonFLWItems))
+            trendingMovies: List[Film] = list(map(self.parseFLWElement, trendingMoviesFLWItems))
+            trendingShows: List[Film] = list(map(self.parseFLWElement, trendingShowsFLWItems))
+            latestMovies: List[Film] = list(map(self.parseFLWElement, latestMoviesFLWItems))
+            latestShows: List[Film] = list(map(self.parseFLWElement, latestShowsFLWItems))
+            comingSoonFilms: List[Film] = list(map(self.parseFLWElement, comingSoonFLWItems))
             self.trendingMoviesLoaded.emit(Page(PageInfo(),trendingMovies))
             self.trendingShowsLoaded.emit(Page(PageInfo(),trendingShows))
             self.latestMoviesLoaded.emit(Page(PageInfo(),latestMovies))
@@ -195,72 +194,80 @@ class QSol(QProvider):
         moviesUrl: str = f"{self._hostUrl}/movie?page={pageNumber}"
         request: QNetworkRequest = QNetworkRequest(QUrl(moviesUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
-        reply.setProperty("endpoint","movies")
-        reply.finished.connect(self.endpointReplyFinished)
+        reply.finished.connect(self.moviesReplyFinished)
         self._abort.connect(reply.abort)
+
+    def moviesReplyFinished(self):
+        reply: QObject = self.sender()
+        if isinstance(reply,QNetworkReply) and reply.error() == QNetworkReply.NetworkError.NoError:
+            response: str = reply.readAll().data().decode()
+            htmlDoc : lxml.html.HtmlElement = lxml.html.fromstring(response)
+            paginationElements: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".pagination.pagination-lg li")
+            pageInfo: PageInfo = self.parsePaginationElements(paginationElements)
+            filmsFLWItems: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".flw-item")
+            films: List[Film] = list(map(self.parseFLWElement,filmsFLWItems ))
+            self.moviesLoaded.emit(Page(pageInfo,films))
+            reply.deleteLater()
 
     @pyqtSlot(int)
     def loadShows(self,pageNumber: int):
         showsUrl: str = f"{self._hostUrl}/tv-show?page={pageNumber}"
         request: QNetworkRequest = QNetworkRequest(QUrl(showsUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
-        reply.setProperty("endpoint","shows")
-        reply.finished.connect(self.endpointReplyFinished)
+        reply.finished.connect(self.showsReplyFinished)
         self._abort.connect(reply.abort)
+
+    def showsReplyFinished(self):
+        reply: QObject = self.sender()
+        if isinstance(reply,QNetworkReply) and reply.error() == QNetworkReply.NetworkError.NoError:
+            response: str = reply.readAll().data().decode()
+            htmlDoc : lxml.html.HtmlElement = lxml.html.fromstring(response)
+            paginationElements: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".pagination.pagination-lg li")
+            pageInfo: PageInfo = self.parsePaginationElements(paginationElements)
+            filmsFLWItems: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".flw-item")
+            films: List[Film] = list(map(self.parseFLWElement,filmsFLWItems ))
+            self.showsLoaded.emit(Page(pageInfo,films))
+            reply.deleteLater()
+
 
     @pyqtSlot(int)
     def loadImdb(self,pageNumber: int):
         imdbUrl: str = f"{self._hostUrl}/top-imdb?page={pageNumber}"
         request: QNetworkRequest = QNetworkRequest(QUrl(imdbUrl))
         reply: QNetworkReply = self.networkAccessManager.get(request)
-        reply.setProperty("endpoint","imdb")
-        reply.finished.connect(self.endpointReplyFinished)
+        reply.finished.connect(self.imdbReplyFinished)
         self._abort.connect(reply.abort)
 
-    def search(self,query: str,pageNumber):
-        query = query.strip().replace(" ","-")
-        searchUrl: str = f"{self._hostUrl}/search/{query}?page={pageNumber}"
-        request: QNetworkRequest = QNetworkRequest(QUrl(searchUrl))
-        reply: QNetworkReply = self.networkAccessManager.get(request)
-        reply.setProperty("endpoint","search")
-        reply.finished.connect(self.endpointReplyFinished)
-        self._abort.connect(reply.abort)
-
-    @pyqtSlot()
-    def endpointReplyFinished(self):
+    def imdbReplyFinished(self):
         reply: QObject = self.sender()
         if isinstance(reply,QNetworkReply) and reply.error() == QNetworkReply.NetworkError.NoError:
             response: str = reply.readAll().data().decode()
             htmlDoc : lxml.html.HtmlElement = lxml.html.fromstring(response)
-            pageNavigation: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".pagination.pagination-lg li")
-            currentPage: int = 1
-            lastPage: int = 1
-            hasNextPage: bool = False
-
-            for pageItem in pageNavigation:
-                className: str = pageItem.get("class",0)
-                aTag: lxml.html.HtmlElement =  pageItem.cssselect("a")[0]
-
-                if className.endswith("active"):
-                    currentPage = int(aTag.text)
-                else:
-                    title: str = aTag.get("title","")
-                    href: str = aTag.get("href","")
-                    if title == "Last":
-                        lastPage = int(href.rsplit("=",1)[1].strip())
-                    if title == "Next":
-                        hasNextPage = True
+            paginationElements: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".pagination.pagination-lg li")
+            pageInfo: PageInfo = self.parsePaginationElements(paginationElements)
             filmsFLWItems: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".flw-item")
-            films: List[Film] = list(map(self.extractFilmElement,filmsFLWItems ))
-            endpoint: str = reply.property("endpoint")
-            if endpoint == "movies":
-                self.moviesLoaded.emit(Page(PageInfo(currentPage,lastPage,hasNextPage),films))
-            elif endpoint == "shows":
-                self.showsLoaded.emit(Page(PageInfo(currentPage,lastPage,hasNextPage),films))
-            elif endpoint == "search":
-                self.searchLoaded.emit(Page(PageInfo(currentPage,lastPage,hasNextPage),films))
-            else:
-                self.imdbLoaded.emit(Page(PageInfo(currentPage,lastPage,hasNextPage),films))
+            films: List[Film] = list(map(self.parseFLWElement,filmsFLWItems ))
+            self.imdbLoaded.emit(Page(pageInfo,films))
+            reply.deleteLater()
+
+    def loadSearch(self,query: str,pageNumber):
+        query = query.strip().replace(" ","-")
+        searchUrl: str = f"{self._hostUrl}/search/{query}?page={pageNumber}"
+        request: QNetworkRequest = QNetworkRequest(QUrl(searchUrl))
+        reply: QNetworkReply = self.networkAccessManager.get(request)
+        reply.finished.connect(self.searchReplyFinished)
+        self._abort.connect(reply.abort)
+
+    def searchReplyFinished(self):
+        reply: QObject = self.sender()
+        if isinstance(reply,QNetworkReply) and reply.error() == QNetworkReply.NetworkError.NoError:
+            response: str = reply.readAll().data().decode()
+            htmlDoc : lxml.html.HtmlElement = lxml.html.fromstring(response)
+            paginationElements: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".pagination.pagination-lg li")
+            pageInfo: PageInfo = self.parsePaginationElements(paginationElements)
+            filmsFLWItems: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".flw-item")
+            films: List[Film] = list(map(self.parseFLWElement,filmsFLWItems ))
+            self.searchLoaded.emit(Page(pageInfo,films))
             reply.deleteLater()
 
     def loadFilmInfo(self,url: str) -> None:
@@ -285,14 +292,14 @@ class QSol(QProvider):
             country: str = elements[4].cssselect("a")[0].text.strip()
             title = reply.request().url().url().split("watch-")[-1].split("-free")[0].replace("-"," ")
             flwItems: List[lxml.html.HtmlElement] = htmlDoc.cssselect(".flw-item")
-            recommendations: List[Film] = list(map(self.extractFilmElement,flwItems))
+            recommendations: List[Film] = list(map(self.parseFLWElement,flwItems))
             posterUrl:str = htmlDoc.cssselect(".detail_page-infor .film-poster-img")[0].get("src")
             filmInfo: FilmInfo = FilmInfo(title=title,release=release,description=description.strip(),genre=genre,country=country,duration=duration,posterUrl=posterUrl,recommendation=recommendations)
             self.filmInfoLoaded.emit(filmInfo)
             reply.deleteLater()
 
 
-    def extractFilmElement(self,element: lxml.html.HtmlElement) -> Film:
+    def parseFLWElement(self,element: lxml.html.HtmlElement) -> Film:
         poster_url: lxml.html.HtmlElement = element.cssselect(".film-poster > img")[0].get("data-src")
         link_tag: lxml.html.HtmlElement = element.cssselect(".film-poster > a")[0]
         title: str = link_tag.get("title")
@@ -307,6 +314,26 @@ class QSol(QProvider):
         is_tv: bool = True if film_info_tags[-1].text == "TV" else False
 
         return Film(title,self._hostUrl + link,is_tv,posterUrl=poster_url,extra= extra_details)
+
+    def parsePaginationElements(self,elements: List[lxml.html.HtmlElement]) -> PageInfo:
+        currentPage: int = 1
+        lastPage: int = 1
+        hasNextPage: bool = False
+
+        for pageItem in elements:
+            className: str = pageItem.get("class",0)
+            aTag: lxml.html.HtmlElement =  pageItem.cssselect("a")[0]
+            if className.endswith("active"):
+                currentPage = int(aTag.text)
+            else:
+                title: str = aTag.get("title","")
+                href: str = aTag.get("href","")
+                if title == "Last":
+                    lastPage = int(href.rsplit("=",1)[1].strip())
+                if title == "Next":
+                    hasNextPage = True
+
+        return PageInfo(currentPage,lastPage,hasNextPage)
 
     def abort(self):
         self._abort.emit()

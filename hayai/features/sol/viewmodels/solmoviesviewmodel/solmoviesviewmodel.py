@@ -22,6 +22,12 @@ class QSolMoviesViewModel(QObject):
     def movies(self):
         return self._movies
 
+    def loadMovies(self):
+        self._moviesPageInfo = PageInfo(0,1,True)
+        self._movies.clear()
+        self._loadingMovies = False
+        self.loadNext()
+
     def loadNext(self):
         if self._loadingMovies or not self._moviesPageInfo.hasNextPage:
             return

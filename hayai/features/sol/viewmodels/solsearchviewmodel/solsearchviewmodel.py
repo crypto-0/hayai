@@ -23,7 +23,7 @@ class QSolSearchViewModel(QObject):
     def queriedFilms(self):
         return self._queriedFilms
 
-    def search(self,query: str):
+    def loadSearch(self,query: str):
         self._searchQuery = query
         self._searchPageInfo: PageInfo = PageInfo(0,1,True)
         self._queriedFilms.clear()
@@ -35,7 +35,7 @@ class QSolSearchViewModel(QObject):
         if self._searching or not self._searchPageInfo.hasNextPage:
             return
         self._searching = True
-        self._sol.search(self._searchQuery,self._searchPageInfo.currentPage + 1)
+        self._sol.loadSearch(self._searchQuery,self._searchPageInfo.currentPage + 1)
 
     def searchLoaded(self,page: Page):
         self._searching = False

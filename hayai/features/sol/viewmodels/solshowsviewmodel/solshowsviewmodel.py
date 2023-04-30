@@ -15,13 +15,19 @@ class QSolShowsViewModel(QObject):
         self._showsPageInfo: PageInfo = PageInfo(0,1,True)
 
         self._sol.showsLoaded.connect(self.showsLoaded)
-        self._shows.fetchMoreRequest.connect(self.loadShows)
+        self._shows.fetchMoreRequest.connect(self.loadNext)
 
     @property
     def shows(self):
         return self._shows
 
     def loadShows(self):
+        self._showsPageInfo = PageInfo(0,1,True)
+        self._shows.clear()
+        self._loadingShows = False
+        self.loadNext()
+
+    def loadNext(self):
         if self._loadingShows or not self._showsPageInfo.hasNextPage:
             return
         self._loadingShows = True

@@ -27,7 +27,7 @@ class QSolSearchScreen(QScreen):
         view.setItemDelegate(QFilmDelegate())
 
         view.clicked.connect(self.onFilmClicked)
-        searchbar.lineEditTextChanged.connect(self._searchViewModel.search)
+        searchbar.lineEditTextChanged.connect(self._searchViewModel.loadSearch)
 
         Layout: QVBoxLayout = QVBoxLayout()
         Layout.addWidget(searchbar)

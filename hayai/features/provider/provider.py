@@ -64,6 +64,6 @@ class QProvider(QObject):
         self.networkAccessManager: QNetworkAccessManager = QNetworkAccessManager()
 
     @abstractmethod
-    def search(self,query: str,page_number: int = 1) -> Page :
+    def loadSearch(self,query: str,page_number: int = 1) -> Page :
         raise NotImplemented
 
